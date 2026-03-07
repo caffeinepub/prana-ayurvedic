@@ -22,6 +22,7 @@ import {
 import { AnimatePresence, motion, useInView } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import AdminPanel from "./AdminPanel";
 import { useSubmitInquiry } from "./hooks/useQueries";
 
 // ── Fade-up reveal wrapper ──────────────────────────────────────────────────
@@ -163,7 +164,7 @@ function Navbar() {
             data-ocid="nav.link"
           >
             <img
-              src="/assets/uploads/1000081421-Picsart-BackgroundRemover-1.png"
+              src="/assets/uploads/1000081421-Picsart-BackgroundRemover-1-1.png"
               alt="Prana Ayurvedic"
               className="h-12 w-auto object-contain"
             />
@@ -276,7 +277,7 @@ function HeroSection() {
           className="mb-8"
         >
           <img
-            src="/assets/uploads/1000081421-Picsart-BackgroundRemover-1.png"
+            src="/assets/uploads/1000081421-Picsart-BackgroundRemover-1-1.png"
             alt="Prana Ayurvedic"
             className="h-28 md:h-36 w-auto mx-auto object-contain drop-shadow-[0_0_20px_rgba(200,140,20,0.4)]"
           />
@@ -954,7 +955,7 @@ function Footer() {
           {/* Brand */}
           <div>
             <img
-              src="/assets/uploads/1000081421-Picsart-BackgroundRemover-1.png"
+              src="/assets/uploads/1000081421-Picsart-BackgroundRemover-1-1.png"
               alt="Prana Ayurvedic"
               className="h-16 w-auto object-contain mb-4"
             />
@@ -1022,14 +1023,23 @@ function Footer() {
         {/* Bottom bar */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground font-sans">
           <span>© {year} Prana Ayurvedic. All rights reserved.</span>
-          <a
-            href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(typeof window !== "undefined" ? window.location.hostname : "")}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-gold transition-colors"
-          >
-            Built with ❤ using caffeine.ai
-          </a>
+          <div className="flex items-center gap-6">
+            <a
+              href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(typeof window !== "undefined" ? window.location.hostname : "")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-gold transition-colors"
+            >
+              Built with ❤ using caffeine.ai
+            </a>
+            <a
+              href="?admin"
+              className="text-muted-foreground/25 hover:text-muted-foreground/60 transition-colors text-[10px] tracking-widest uppercase"
+              data-ocid="footer.link"
+            >
+              Admin
+            </a>
+          </div>
         </div>
       </div>
     </footer>
@@ -1038,6 +1048,13 @@ function Footer() {
 
 // ── App ────────────────────────────────────────────────────────────────────────
 export default function App() {
+  const isAdmin =
+    typeof window !== "undefined" && window.location.search.includes("admin");
+
+  if (isAdmin) {
+    return <AdminPanel />;
+  }
+
   return (
     <div className="min-h-screen bg-charcoal">
       <Toaster

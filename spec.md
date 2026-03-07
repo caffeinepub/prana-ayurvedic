@@ -1,35 +1,31 @@
-# Prana Ayurvedic Home Service
+# Prana Ayurvedic
 
 ## Current State
-New project. No existing code.
+A single-page Ayurvedic home service website with sections: Hero, About, Services, Gallery, Contact/Booking, Footer. Customers can submit a booking (name, phone, service) via the ContactSection form, which stores data via `submitInquiry()` in the Motoko backend. The backend also has `getAllInquiries()` which returns all bookings, but there is no admin UI to view them.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Landing/hero section with logo and tagline
-- About section describing Prana Ayurvedic Home Service
-- Services section listing: Uzhichil, Swedana, Abhyanga, Pindasweda — each with description and price (₹1500/session)
-- Gallery section with beautiful ayurvedic massage images
-- Service area section: available within 15 km of Chandapura, Bangalore
-- Contact/booking section with phone number (9845304711) and Instagram handle (prana__aayurvedic)
-- Navigation bar with logo
-- Footer with all contact details
+- Admin panel page/view accessible via a hidden route (`/admin`) or a secret URL path
+- Simple password-protected login screen (client-side password, e.g. "prana2024") to guard the admin panel
+- Bookings list table showing: customer name, phone number, and selected service for each inquiry
+- A logout button to return to the login screen
 
 ### Modify
-- Nothing (new project)
+- App routing: support toggling between the main landing page and the admin panel view (no full router needed — use URL hash or a simple state-based approach)
+- Navbar: add a discreet "Admin" link (small, subtle, in the footer area or accessible via URL) so the owner can navigate to it
 
 ### Remove
-- Nothing (new project)
+- Nothing removed
 
 ## Implementation Plan
-1. Generate 4 beautiful ayurvedic massage images for the gallery
-2. Generate a hero/background image
-3. Generate Motoko backend with a simple inquiry/contact form submission store
-4. Build React frontend with:
-   - Sticky navbar with Prana logo
-   - Hero section with background image and CTA
-   - Services section (4 cards: Uzhichil, Swedana, Abhyanga, Pindasweda)
-   - Gallery section with generated massage images
-   - Service area info
-   - Contact section with phone and Instagram link
-   - Footer
+1. Create `AdminPanel.tsx` component:
+   - Login screen with password input (hardcoded password "prana2024") and submit button
+   - On successful login, show bookings table
+   - Bookings table columns: Name, Phone, Service
+   - Calls `useGetAllInquiries` (or directly calls backend) to fetch all bookings
+   - Loading and empty states
+   - Logout button
+2. Update `App.tsx` to detect `?admin` or `#admin` in the URL and render `AdminPanel` instead of the main site
+3. Add a subtle "Admin" link in the Footer (small, low-opacity) that navigates to the admin view
+4. Add a `useGetAllInquiries` hook in hooks/useQueries.ts
