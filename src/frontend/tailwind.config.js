@@ -74,6 +74,7 @@ export default {
         charcoal: "oklch(var(--charcoal))",
         "charcoal-mid": "oklch(var(--charcoal-mid))",
         "charcoal-light": "oklch(var(--charcoal-light))",
+        forest: "oklch(var(--forest))",
       },
       fontFamily: {
         display: ["Fraunces", "serif"],

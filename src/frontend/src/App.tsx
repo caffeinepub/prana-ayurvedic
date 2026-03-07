@@ -11,6 +11,7 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import {
   CheckCircle2,
+  Info,
   Instagram,
   Leaf,
   Loader2,
@@ -156,7 +157,7 @@ function Navbar() {
             : "bg-transparent"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 h-28 flex items-center justify-between">
           {/* Logo */}
           <button
             type="button"
@@ -165,9 +166,9 @@ function Navbar() {
             data-ocid="nav.link"
           >
             <img
-              src="/assets/uploads/1000081421-Picsart-BackgroundRemover-1-1.png"
+              src="/assets/generated/prana-logo-transparent.png"
               alt="Prana Ayurvedic"
-              className="h-12 w-auto object-contain"
+              className="h-20 w-auto object-contain"
             />
           </button>
 
@@ -278,9 +279,9 @@ function HeroSection() {
           className="mb-8"
         >
           <img
-            src="/assets/uploads/1000081421-Picsart-BackgroundRemover-1-1.png"
+            src="/assets/generated/prana-logo-transparent.png"
             alt="Prana Ayurvedic"
-            className="h-28 md:h-36 w-auto mx-auto object-contain drop-shadow-[0_0_20px_rgba(200,140,20,0.4)]"
+            className="h-48 md:h-64 w-auto mx-auto object-contain drop-shadow-[0_0_30px_rgba(30,100,30,0.5)]"
           />
         </motion.div>
 
@@ -343,6 +344,28 @@ function HeroSection() {
           >
             Our Services
           </Button>
+        </motion.div>
+
+        {/* Service Area Badge */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.85 }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6"
+        >
+          <div className="flex items-center gap-2 bg-forest/20 border border-forest/50 backdrop-blur-sm rounded-full px-5 py-2.5">
+            <MapPin className="w-4 h-4 text-gold shrink-0" />
+            <span className="text-cream/90 font-sans text-sm">
+              <span className="text-gold font-semibold">Free home visit</span>{" "}
+              within 15 km of Chandapura
+            </span>
+          </div>
+          <div className="flex items-center gap-2 bg-amber/10 border border-amber/30 backdrop-blur-sm rounded-full px-5 py-2.5">
+            <Info className="w-4 h-4 text-amber shrink-0" />
+            <span className="text-cream/80 font-sans text-sm">
+              Travel charge beyond 15 km
+            </span>
+          </div>
         </motion.div>
 
         {/* Scroll indicator */}
@@ -515,6 +538,38 @@ function ServicesSection() {
           title="Timeless Therapies, Modern Comfort"
           subtitle="Each therapy is tailored to your unique constitution, performed with warm medicated oils and expert hands that have mastered ancient Kerala techniques."
         />
+
+        {/* Service Area Notice */}
+        <FadeUp delay={0.1}>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-10 max-w-3xl mx-auto">
+            <div className="flex-1 flex items-center gap-3 bg-forest/15 border border-forest/40 rounded-lg px-5 py-3.5">
+              <div className="w-8 h-8 rounded-full bg-forest/30 flex items-center justify-center shrink-0">
+                <MapPin className="w-4 h-4 text-gold" />
+              </div>
+              <div>
+                <p className="text-gold font-sans font-semibold text-sm">
+                  Within 15 km — FREE Home Visit
+                </p>
+                <p className="text-muted-foreground font-sans text-xs mt-0.5">
+                  No travel charge within 15 km of Chandapura, Bangalore
+                </p>
+              </div>
+            </div>
+            <div className="flex-1 flex items-center gap-3 bg-amber/8 border border-amber/25 rounded-lg px-5 py-3.5">
+              <div className="w-8 h-8 rounded-full bg-amber/15 flex items-center justify-center shrink-0">
+                <Info className="w-4 h-4 text-amber" />
+              </div>
+              <div>
+                <p className="text-amber font-sans font-semibold text-sm">
+                  Beyond 15 km — Travel Charge Applies
+                </p>
+                <p className="text-muted-foreground font-sans text-xs mt-0.5">
+                  Additional service charge for locations outside the area
+                </p>
+              </div>
+            </div>
+          </div>
+        </FadeUp>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {SERVICES.map((service, index) => (
@@ -936,8 +991,49 @@ function ContactSection() {
               </div>
             </FadeUp>
 
+            {/* Service Area Policy */}
+            <FadeUp delay={0.15}>
+              <div className="rounded-xl overflow-hidden border border-gold/15">
+                {/* Green header — free zone */}
+                <div className="bg-forest/25 border-b border-forest/40 px-6 py-4 flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-forest/40 flex items-center justify-center shrink-0 mt-0.5">
+                    <MapPin className="w-5 h-5 text-gold" />
+                  </div>
+                  <div>
+                    <p className="text-gold font-display text-base font-semibold">
+                      Within 15 km — Free Home Visit
+                    </p>
+                    <p className="text-cream/80 font-sans text-sm mt-1 leading-relaxed">
+                      We cover all homes within{" "}
+                      <strong className="text-gold">
+                        15 km of Chandapura, Bangalore
+                      </strong>{" "}
+                      at no extra charge. Your ₹1,500 session fee is all you
+                      pay.
+                    </p>
+                  </div>
+                </div>
+                {/* Amber footer — beyond zone */}
+                <div className="bg-amber/8 px-6 py-4 flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-amber/15 flex items-center justify-center shrink-0 mt-0.5">
+                    <Info className="w-5 h-5 text-amber" />
+                  </div>
+                  <div>
+                    <p className="text-amber font-display text-base font-semibold">
+                      Beyond 15 km — Travel Charge Applies
+                    </p>
+                    <p className="text-cream/70 font-sans text-sm mt-1 leading-relaxed">
+                      Locations outside the 15 km radius will incur an
+                      additional travel/service charge. Contact us to confirm
+                      pricing for your area.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </FadeUp>
+
             {/* Pricing info */}
-            <FadeUp delay={0.2}>
+            <FadeUp delay={0.25}>
               <div className="bg-charcoal border border-gold/15 rounded-xl p-6">
                 <h3 className="font-display text-lg text-cream mb-4">
                   Session Pricing
@@ -958,8 +1054,9 @@ function ContactSection() {
                   ))}
                 </div>
                 <p className="text-xs text-muted-foreground font-sans mt-4 leading-relaxed">
-                  All sessions include premium medicated herbal oils. Home
-                  service available within 15 km of Chandapura, Bangalore.
+                  All sessions include premium medicated herbal oils. Free home
+                  service within 15 km of Chandapura, Bangalore. Travel charges
+                  apply beyond 15 km.
                 </p>
               </div>
             </FadeUp>
@@ -985,9 +1082,9 @@ function Footer() {
           {/* Brand */}
           <div>
             <img
-              src="/assets/uploads/1000081421-Picsart-BackgroundRemover-1-1.png"
+              src="/assets/generated/prana-logo-transparent.png"
               alt="Prana Ayurvedic"
-              className="h-16 w-auto object-contain mb-4"
+              className="h-24 w-auto object-contain mb-4"
             />
             <p className="text-muted-foreground font-sans text-sm leading-relaxed max-w-xs">
               Ancient Healing. Delivered to Your Doorstep. Authentic Kerala
