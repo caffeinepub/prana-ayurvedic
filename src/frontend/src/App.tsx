@@ -14,6 +14,7 @@ import {
   Instagram,
   Leaf,
   Loader2,
+  Mail,
   MapPin,
   Menu,
   Phone,
@@ -834,6 +835,16 @@ function ContactSection() {
                       ₹1,500 per session · Home service within 15 km of
                       Chandapura
                     </p>
+                    <p className="text-center text-xs text-muted-foreground font-sans">
+                      Or email us at{" "}
+                      <a
+                        href="mailto:pranaayurvedichome@gmail.com"
+                        className="text-gold hover:text-gold-bright transition-colors underline underline-offset-2"
+                        data-ocid="contact.link"
+                      >
+                        pranaayurvedichome@gmail.com
+                      </a>
+                    </p>
                   </motion.form>
                 )}
               </AnimatePresence>
@@ -869,7 +880,7 @@ function ContactSection() {
 
                   {/* Instagram */}
                   <a
-                    href="https://instagram.com/prana__aayurvedic"
+                    href="https://instagram.com/prana_aayurvedic"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-4 group"
@@ -884,6 +895,25 @@ function ContactSection() {
                       </div>
                       <div className="text-cream font-sans text-base group-hover:text-gold transition-colors duration-200">
                         @prana__aayurvedic
+                      </div>
+                    </div>
+                  </a>
+
+                  {/* Email */}
+                  <a
+                    href="mailto:pranaayurvedichome@gmail.com"
+                    className="flex items-center gap-4 group"
+                    data-ocid="contact.link"
+                  >
+                    <div className="w-11 h-11 rounded-lg bg-gold/10 border border-gold/20 flex items-center justify-center group-hover:bg-gold/20 transition-colors duration-200 shrink-0">
+                      <Mail className="w-5 h-5 text-gold" />
+                    </div>
+                    <div>
+                      <div className="text-xs text-muted-foreground font-sans uppercase tracking-wide mb-0.5">
+                        Email
+                      </div>
+                      <div className="text-cream font-sans text-sm group-hover:text-gold transition-colors duration-200 break-all">
+                        pranaayurvedichome@gmail.com
                       </div>
                     </div>
                   </a>
@@ -1000,7 +1030,7 @@ function Footer() {
                 +91 9845304711
               </a>
               <a
-                href="https://instagram.com/prana__aayurvedic"
+                href="https://instagram.com/prana_aayurvedic"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-muted-foreground hover:text-gold transition-colors text-sm font-sans"
@@ -1008,6 +1038,14 @@ function Footer() {
               >
                 <Instagram className="w-4 h-4 text-gold/60" />
                 @prana__aayurvedic
+              </a>
+              <a
+                href="mailto:pranaayurvedichome@gmail.com"
+                className="flex items-center gap-2 text-muted-foreground hover:text-gold transition-colors text-sm font-sans"
+                data-ocid="footer.link"
+              >
+                <Mail className="w-4 h-4 text-gold/60" />
+                pranaayurvedichome@gmail.com
               </a>
               <div className="flex items-start gap-2 text-muted-foreground text-sm font-sans">
                 <MapPin className="w-4 h-4 text-gold/60 mt-0.5 shrink-0" />
