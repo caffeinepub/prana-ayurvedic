@@ -1,4 +1,10 @@
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -8,7 +14,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Toaster } from "@/components/ui/sonner";
+import { Textarea } from "@/components/ui/textarea";
 import {
   CheckCircle2,
   Info,
@@ -19,13 +27,24 @@ import {
   MapPin,
   Menu,
   Phone,
+  Sparkles,
+  Star,
   X,
 } from "lucide-react";
 import { AnimatePresence, motion, useInView } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import AdminPanel from "./AdminPanel";
-import { useSubmitInquiry } from "./hooks/useQueries";
+import type { Review } from "./backend";
+import { useCountdown } from "./hooks/useCountdown";
+import {
+  useGetAllReviews,
+  useSubmitInquiry,
+  useSubmitReview,
+} from "./hooks/useQueries";
+
+import { ZoneChecker } from "./ServiceAreaMap";
+const ServiceAreaMap = lazy(() => import("./ServiceAreaMap"));
 
 // ── Fade-up reveal wrapper ──────────────────────────────────────────────────
 function FadeUp({
@@ -124,6 +143,258 @@ const SERVICES = [
   },
 ];
 
+// ── Floating Petals for Launch Celebration ───────────────────────────────────
+const PETAL_CONFIGS = [
+  { id: "p1", left: "8%", delay: 0, duration: 5.5, size: 18 },
+  { id: "p2", left: "18%", delay: 0.6, duration: 6.2, size: 14 },
+  { id: "p3", left: "28%", delay: 1.2, duration: 5, size: 20 },
+  { id: "p4", left: "38%", delay: 0.3, duration: 6.8, size: 16 },
+  { id: "p5", left: "48%", delay: 0.9, duration: 5.3, size: 22 },
+  { id: "p6", left: "58%", delay: 1.5, duration: 6, size: 12 },
+  { id: "p7", left: "68%", delay: 0.4, duration: 5.7, size: 18 },
+  { id: "p8", left: "78%", delay: 1.1, duration: 6.4, size: 15 },
+  { id: "p9", left: "88%", delay: 0.7, duration: 5.1, size: 20 },
+  { id: "p10", left: "93%", delay: 1.8, duration: 6.6, size: 13 },
+  { id: "p11", left: "13%", delay: 2.0, duration: 5.8, size: 17 },
+  { id: "p12", left: "53%", delay: 2.3, duration: 6.1, size: 14 },
+];
+
+// ── Countdown Banner ─────────────────────────────────────────────────────────
+function CountdownBanner() {
+  const { days, hours, minutes, seconds, isLaunched } = useCountdown();
+  const [prevValues, setPrevValues] = useState({
+    days,
+    hours,
+    minutes,
+    seconds,
+  });
+  const [flipping, setFlipping] = useState({
+    days: false,
+    hours: false,
+    minutes: false,
+    seconds: false,
+  });
+
+  useEffect(() => {
+    const newFlipping = {
+      days: false,
+      hours: false,
+      minutes: false,
+      seconds: false,
+    };
+    if (prevValues.seconds !== seconds) newFlipping.seconds = true;
+    if (prevValues.minutes !== minutes) newFlipping.minutes = true;
+    if (prevValues.hours !== hours) newFlipping.hours = true;
+    if (prevValues.days !== days) newFlipping.days = true;
+
+    if (Object.values(newFlipping).some(Boolean)) {
+      setFlipping(newFlipping);
+      const timer = setTimeout(
+        () =>
+          setFlipping({
+            days: false,
+            hours: false,
+            minutes: false,
+            seconds: false,
+          }),
+        300,
+      );
+      setPrevValues({ days, hours, minutes, seconds });
+      return () => clearTimeout(timer);
+    }
+  }, [days, hours, minutes, seconds, prevValues]);
+
+  if (isLaunched) {
+    // ── Launch Celebration ──────────────────────────────────────────────────
+    return (
+      <div className="relative overflow-hidden bg-charcoal-mid border-b border-gold/20 py-16 md:py-24">
+        {/* Floating petals */}
+        {PETAL_CONFIGS.map((petal) => (
+          <motion.div
+            key={petal.id}
+            className="absolute pointer-events-none"
+            style={{ left: petal.left, bottom: "-20px" }}
+            animate={{ y: [0, -600], opacity: [0, 0.7, 0.5, 0] }}
+            transition={{
+              duration: petal.duration,
+              delay: petal.delay,
+              repeat: Number.POSITIVE_INFINITY,
+              ease: "easeOut",
+            }}
+          >
+            <Leaf
+              style={{ width: petal.size, height: petal.size }}
+              className="text-gold opacity-60 rotate-12"
+            />
+          </motion.div>
+        ))}
+
+        {/* Gold glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-40 bg-gold/8 blur-3xl rounded-full pointer-events-none" />
+
+        <div className="relative z-10 text-center px-6 max-w-3xl mx-auto">
+          {/* Pulsing icon */}
+          <motion.div
+            className="flex justify-center mb-6"
+            animate={{ scale: [1, 1.12, 1] }}
+            transition={{
+              duration: 2.5,
+              repeat: Number.POSITIVE_INFINITY,
+              ease: "easeInOut",
+            }}
+          >
+            <div className="relative">
+              <div className="absolute inset-0 rounded-full bg-gold/20 animate-ping" />
+              <div className="relative w-16 h-16 rounded-full bg-gold/15 border border-gold/30 flex items-center justify-center shadow-gold">
+                <Sparkles className="w-7 h-7 text-gold" />
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="font-display text-4xl md:text-6xl text-gold leading-tight mb-4"
+            style={{ textShadow: "0 0 40px oklch(0.75 0.12 85 / 0.5)" }}
+          >
+            We Are Now Open!
+          </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="text-cream/85 font-sans text-base md:text-lg leading-relaxed mb-8"
+          >
+            Ancient healing is now at your doorstep. Book your first session
+            today.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <Button
+              onClick={() =>
+                document
+                  .getElementById("contact")
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
+              className="bg-gold text-charcoal hover:bg-gold-bright font-sans font-semibold text-base px-10 h-13 tracking-wide transition-all duration-300 shadow-gold hover:shadow-gold-lg"
+              data-ocid="launch.primary_button"
+            >
+              Book Now
+            </Button>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Pre-launch Countdown Banner ─────────────────────────────────────────
+  const tiles = [
+    { value: days, label: "Days", key: "days" as const },
+    { value: hours, label: "Hours", key: "hours" as const },
+    { value: minutes, label: "Minutes", key: "minutes" as const },
+    { value: seconds, label: "Seconds", key: "seconds" as const },
+  ];
+
+  return (
+    <div className="relative overflow-hidden bg-charcoal-mid border-b border-gold/20 py-8 md:py-10">
+      {/* Gold glow at top */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-xl h-1 bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
+      <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-96 h-32 bg-gold/6 blur-3xl rounded-full pointer-events-none" />
+
+      <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
+        {/* Label */}
+        <motion.span
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="inline-block text-gold text-xs tracking-[0.35em] uppercase font-sans mb-2"
+        >
+          Launching
+        </motion.span>
+
+        {/* Date */}
+        <motion.p
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="font-display text-cream text-2xl md:text-3xl mb-6"
+        >
+          15 March 2026
+        </motion.p>
+
+        {/* Countdown Tiles */}
+        <div className="flex items-center justify-center gap-3 md:gap-5 mb-5">
+          {tiles.map((tile, i) => (
+            <motion.div
+              key={tile.key}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 + i * 0.07 }}
+              className="flex flex-col items-center"
+            >
+              <div className="relative bg-charcoal border border-gold/20 rounded-xl w-16 h-16 md:w-20 md:h-20 flex items-center justify-center backdrop-blur-sm shadow-gold overflow-hidden">
+                {/* Subtle inner glow */}
+                <div className="absolute inset-0 bg-gradient-to-b from-gold/5 to-transparent pointer-events-none" />
+                <AnimatePresence mode="popLayout">
+                  <motion.span
+                    key={tile.value}
+                    initial={{
+                      y: flipping[tile.key] ? -20 : 0,
+                      opacity: flipping[tile.key] ? 0 : 1,
+                      scale: flipping[tile.key] ? 0.8 : 1,
+                    }}
+                    animate={{ y: 0, opacity: 1, scale: 1 }}
+                    exit={{ y: 20, opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                    className="font-display text-2xl md:text-3xl text-gold font-semibold leading-none relative z-10"
+                  >
+                    {String(tile.value).padStart(2, "0")}
+                  </motion.span>
+                </AnimatePresence>
+              </div>
+              <span className="text-cream/60 font-sans text-[10px] md:text-xs tracking-widest uppercase mt-2">
+                {tile.label}
+              </span>
+            </motion.div>
+          ))}
+
+          {/* Separator dots */}
+          {[0, 1, 2].map((i) => (
+            <motion.span
+              key={`sep-${i}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0.3, 1, 0.3] }}
+              transition={{
+                duration: 1,
+                repeat: Number.POSITIVE_INFINITY,
+                delay: i * 0.15,
+              }}
+              className="text-gold/60 font-display text-2xl md:text-3xl leading-none mb-6 hidden xs:block"
+              style={{ display: i < 3 ? undefined : "none" }}
+            />
+          ))}
+        </div>
+
+        {/* Subtext */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="text-cream/60 font-sans text-sm"
+        >
+          Service begins 15 March 2026 — Pre-book your session now!
+        </motion.p>
+      </div>
+    </div>
+  );
+}
+
 // ── Navbar ───────────────────────────────────────────────────────────────────
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -145,6 +416,7 @@ function Navbar() {
     { label: "About", id: "about" },
     { label: "Services", id: "services" },
     { label: "Gallery", id: "gallery" },
+    { label: "Reviews", id: "reviews" },
     { label: "Contact", id: "contact" },
   ];
 
@@ -250,6 +522,7 @@ function Navbar() {
 
 // ── Hero Section ─────────────────────────────────────────────────────────────
 function HeroSection() {
+  const { isLaunched } = useCountdown();
   return (
     <section
       id="hero"
@@ -367,6 +640,23 @@ function HeroSection() {
             </span>
           </div>
         </motion.div>
+
+        {/* Launch Date Pill (only shown before launch) */}
+        {!isLaunched && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 1.0 }}
+            className="flex justify-center mt-4"
+          >
+            <div className="inline-flex items-center gap-2 bg-charcoal/60 border border-gold/30 backdrop-blur-sm rounded-full px-4 py-2">
+              <Leaf className="w-3.5 h-3.5 text-gold shrink-0" />
+              <span className="text-gold/90 font-sans text-xs font-medium tracking-wide">
+                🌿 Launching 15 March 2026
+              </span>
+            </div>
+          </motion.div>
+        )}
 
         {/* Scroll indicator */}
         <motion.div
@@ -724,6 +1014,12 @@ function ContactSection() {
   const [service, setService] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
+  // Shared refs for map + zone checker communication
+  // biome-ignore lint/suspicious/noExplicitAny: Leaflet loaded via CDN
+  const mapInstanceRef = useRef<any>(null);
+  // biome-ignore lint/suspicious/noExplicitAny: Leaflet loaded via CDN
+  const userPinRef = useRef<any>(null);
+
   const { mutate: submitInquiry, isPending } = useSubmitInquiry();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -1032,6 +1328,40 @@ function ContactSection() {
               </div>
             </FadeUp>
 
+            {/* Service Area Map */}
+            <FadeUp delay={0.2}>
+              <div className="bg-charcoal border border-gold/15 rounded-xl p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <MapPin className="w-4 h-4 text-gold" />
+                  <h3 className="font-display text-base text-cream">
+                    15 km Service Radius — Chandapura, Bangalore
+                  </h3>
+                </div>
+                <Suspense
+                  fallback={
+                    <div className="w-full h-[320px] rounded-xl bg-charcoal-mid border border-gold/10 flex items-center justify-center">
+                      <span className="text-muted-foreground font-sans text-sm">
+                        Loading map...
+                      </span>
+                    </div>
+                  }
+                >
+                  <ServiceAreaMap
+                    mapInstanceRef={mapInstanceRef}
+                    userPinRef={userPinRef}
+                  />
+                </Suspense>
+                <p className="text-xs text-muted-foreground font-sans mt-3 text-center">
+                  Free home visit within the highlighted zone · Travel charge
+                  beyond 15 km
+                </p>
+                <ZoneChecker
+                  mapInstanceRef={mapInstanceRef}
+                  userPinRef={userPinRef}
+                />
+              </div>
+            </FadeUp>
+
             {/* Pricing info */}
             <FadeUp delay={0.25}>
               <div className="bg-charcoal border border-gold/15 rounded-xl p-6">
@@ -1062,6 +1392,463 @@ function ContactSection() {
             </FadeUp>
           </div>
         </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function formatTimestamp(timestampNs: bigint): string {
+  const ms = Number(timestampNs / 1_000_000n);
+  const date = new Date(ms);
+  const now = Date.now();
+  const diffMs = now - ms;
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  if (diffDays < 7) return `${diffDays} days ago`;
+  if (diffDays < 30)
+    return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? "s" : ""} ago`;
+  return date.toLocaleDateString("en-IN", { month: "long", year: "numeric" });
+}
+
+// ── Star Rating Display ────────────────────────────────────────────────────────
+function StarDisplay({
+  rating,
+  size = "sm",
+}: { rating: number; size?: "sm" | "md" }) {
+  const cls = size === "md" ? "w-5 h-5" : "w-4 h-4";
+  return (
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <Star
+          key={i}
+          className={`${cls} transition-colors ${i <= rating ? "text-gold fill-gold" : "text-muted-foreground/30"}`}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ── Star Rating Picker ─────────────────────────────────────────────────────────
+function StarPicker({
+  value,
+  onChange,
+}: { value: number; onChange: (v: number) => void }) {
+  const [hovered, setHovered] = useState(0);
+  return (
+    <fieldset
+      className="flex items-center gap-1.5 border-0 p-0 m-0"
+      aria-label="Star rating"
+    >
+      {[1, 2, 3, 4, 5].map((i) => (
+        <button
+          key={i}
+          type="button"
+          aria-label={`${i} star${i > 1 ? "s" : ""}`}
+          data-ocid="review_modal.toggle"
+          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 rounded transition-transform active:scale-90"
+          onClick={() => onChange(i)}
+          onMouseEnter={() => setHovered(i)}
+          onMouseLeave={() => setHovered(0)}
+        >
+          <Star
+            className={`w-8 h-8 transition-colors duration-100 ${
+              i <= (hovered || value)
+                ? "text-gold fill-gold"
+                : "text-muted-foreground/30"
+            }`}
+          />
+        </button>
+      ))}
+    </fieldset>
+  );
+}
+
+// ── Leave a Review Modal ───────────────────────────────────────────────────────
+function ReviewModal({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+}) {
+  const [name, setName] = useState("");
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  const { mutate: submitReview, isPending } = useSubmitReview();
+
+  const handleClose = () => {
+    onOpenChange(false);
+    // reset after close animation
+    setTimeout(() => {
+      setName("");
+      setRating(0);
+      setComment("");
+      setSubmitted(false);
+    }, 300);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) {
+      toast.error("Please enter your name");
+      return;
+    }
+    if (rating === 0) {
+      toast.error("Please select a star rating");
+      return;
+    }
+    if (comment.trim().length < 10) {
+      toast.error("Please write at least 10 characters");
+      return;
+    }
+    submitReview(
+      { name: name.trim(), rating: BigInt(rating), comment: comment.trim() },
+      {
+        onSuccess: () => {
+          setSubmitted(true);
+        },
+        onError: () => {
+          toast.error("Something went wrong. Please try again.");
+        },
+      },
+    );
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        className="bg-charcoal border border-gold/20 text-cream max-w-md rounded-2xl p-0 overflow-hidden"
+        data-ocid="review_modal.dialog"
+      >
+        <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-gold/5 blur-2xl pointer-events-none" />
+        <div className="relative p-6">
+          <DialogHeader className="mb-6">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-xl bg-gold/10 border border-gold/25 flex items-center justify-center">
+                <Star className="w-5 h-5 text-gold fill-gold/40" />
+              </div>
+              <DialogTitle className="font-display text-xl text-cream">
+                Share Your Experience
+              </DialogTitle>
+            </div>
+            <p className="text-muted-foreground font-sans text-sm">
+              Your honest feedback helps others discover healing.
+            </p>
+          </DialogHeader>
+
+          <AnimatePresence mode="wait">
+            {submitted ? (
+              <motion.div
+                key="success"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-center py-8"
+                data-ocid="review_modal.success_state"
+              >
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 260,
+                    damping: 20,
+                    delay: 0.1,
+                  }}
+                  className="w-16 h-16 rounded-full bg-gold/15 flex items-center justify-center mx-auto mb-4"
+                >
+                  <CheckCircle2 className="w-8 h-8 text-gold" />
+                </motion.div>
+                <h3 className="font-display text-2xl text-cream mb-2">
+                  Thank You!
+                </h3>
+                <p className="text-muted-foreground font-sans text-sm mb-6">
+                  Your feedback has been published and helps others discover
+                  healing.
+                </p>
+                <Button
+                  onClick={handleClose}
+                  className="bg-gold text-charcoal hover:bg-gold-bright font-sans font-semibold"
+                  data-ocid="review_modal.close_button"
+                >
+                  Close
+                </Button>
+              </motion.div>
+            ) : (
+              <motion.form
+                key="form"
+                onSubmit={handleSubmit}
+                className="space-y-5"
+              >
+                {/* Name */}
+                <div className="space-y-1.5">
+                  <Label className="text-cream/80 font-sans text-sm">
+                    Your Name
+                  </Label>
+                  <Input
+                    type="text"
+                    placeholder="Enter your name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="bg-charcoal-light border-gold/20 text-cream placeholder:text-muted-foreground/50 focus:border-gold/60 h-11 font-sans"
+                    data-ocid="review_modal.input"
+                    required
+                  />
+                </div>
+
+                {/* Rating */}
+                <div className="space-y-1.5">
+                  <Label className="text-cream/80 font-sans text-sm">
+                    Rating
+                  </Label>
+                  <StarPicker value={rating} onChange={setRating} />
+                  {rating > 0 && (
+                    <p className="text-gold/70 font-sans text-xs">
+                      {
+                        ["", "Poor", "Fair", "Good", "Very Good", "Excellent"][
+                          rating
+                        ]
+                      }
+                    </p>
+                  )}
+                </div>
+
+                {/* Comment */}
+                <div className="space-y-1.5">
+                  <Label className="text-cream/80 font-sans text-sm">
+                    Your Experience
+                  </Label>
+                  <Textarea
+                    placeholder="Tell us about your session… (min 10 characters)"
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    rows={4}
+                    className="bg-charcoal-light border-gold/20 text-cream placeholder:text-muted-foreground/50 focus:border-gold/60 font-sans resize-none"
+                    data-ocid="review_modal.textarea"
+                    required
+                  />
+                  <p className="text-muted-foreground/50 font-sans text-xs text-right">
+                    {comment.length} chars
+                  </p>
+                </div>
+
+                <div className="flex gap-3 pt-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleClose}
+                    className="flex-1 border-gold/20 text-muted-foreground hover:text-cream hover:border-gold/50 font-sans"
+                    data-ocid="review_modal.cancel_button"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={isPending}
+                    className="flex-1 bg-gold text-charcoal hover:bg-gold-bright font-sans font-semibold shadow-gold transition-all duration-300"
+                    data-ocid="review_modal.submit_button"
+                  >
+                    {isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Submitting…
+                      </>
+                    ) : (
+                      "Submit Review"
+                    )}
+                  </Button>
+                </div>
+              </motion.form>
+            )}
+          </AnimatePresence>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ── Review Card ────────────────────────────────────────────────────────────────
+function ReviewCard({ review, index }: { review: Review; index: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{
+        duration: 0.5,
+        delay: index * 0.08,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+      className="group bg-charcoal border border-gold/10 rounded-xl p-6 hover:border-gold/30 hover:shadow-gold transition-all duration-300 flex flex-col gap-4"
+      data-ocid={`reviews.item.${index + 1}`}
+    >
+      {/* Stars + date row */}
+      <div className="flex items-start justify-between gap-2">
+        <StarDisplay rating={Number(review.rating)} />
+        <span className="text-muted-foreground/60 font-sans text-xs shrink-0">
+          {formatTimestamp(review.timestamp)}
+        </span>
+      </div>
+
+      {/* Comment */}
+      <p className="text-cream/85 font-sans text-sm leading-relaxed flex-1 line-clamp-5">
+        "{review.comment}"
+      </p>
+
+      {/* Author */}
+      <div className="flex items-center gap-3 pt-2 border-t border-gold/8">
+        <div className="w-8 h-8 rounded-full bg-gold/15 border border-gold/20 flex items-center justify-center shrink-0">
+          <span className="text-gold font-display text-sm font-semibold uppercase">
+            {review.name.charAt(0)}
+          </span>
+        </div>
+        <span className="text-cream/90 font-sans text-sm font-medium">
+          {review.name}
+        </span>
+      </div>
+    </motion.div>
+  );
+}
+
+// ── Reviews Section ────────────────────────────────────────────────────────────
+function ReviewsSection({
+  onOpenReviewModal,
+}: {
+  onOpenReviewModal: () => void;
+}) {
+  const { data: reviews, isLoading } = useGetAllReviews();
+  const allReviews = reviews ?? [];
+
+  const avgRating =
+    allReviews.length > 0
+      ? allReviews.reduce((sum, r) => sum + Number(r.rating), 0) /
+        allReviews.length
+      : 0;
+
+  return (
+    <section
+      id="reviews"
+      className="py-24 md:py-32 bg-charcoal-mid relative overflow-hidden"
+      data-ocid="reviews.section"
+    >
+      {/* Decorative background */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
+      <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-gold/3 blur-3xl pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-6 relative">
+        <SectionHeading
+          label="What Our Clients Say"
+          title="Real Experiences, Real Healing"
+          subtitle="Discover what our clients feel after every session — authentic stories of restoration and wellness."
+        />
+
+        {/* Average rating summary */}
+        {!isLoading && allReviews.length > 0 && (
+          <FadeUp delay={0.1}>
+            <div className="flex justify-center mb-12">
+              <div className="inline-flex items-center gap-4 bg-charcoal border border-gold/20 rounded-2xl px-7 py-4 shadow-gold">
+                <div className="text-center">
+                  <div className="font-display text-4xl text-gold leading-none mb-1">
+                    {avgRating.toFixed(1)}
+                  </div>
+                  <div className="text-muted-foreground font-sans text-xs tracking-wide">
+                    Average
+                  </div>
+                </div>
+                <div className="h-10 w-px bg-gold/15" />
+                <div>
+                  <StarDisplay rating={Math.round(avgRating)} size="md" />
+                  <div className="text-muted-foreground font-sans text-xs mt-1.5">
+                    Based on {allReviews.length}{" "}
+                    {allReviews.length === 1 ? "review" : "reviews"}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </FadeUp>
+        )}
+
+        {/* Loading state */}
+        {isLoading && (
+          <div
+            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"
+            data-ocid="reviews.loading_state"
+          >
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="bg-charcoal border border-gold/10 rounded-xl p-6 space-y-4"
+              >
+                <Skeleton className="h-4 w-24 bg-gold/10" />
+                <Skeleton className="h-16 w-full bg-gold/10" />
+                <Skeleton className="h-4 w-32 bg-gold/10" />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!isLoading && allReviews.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col items-center justify-center py-20 gap-5 mb-12"
+            data-ocid="reviews.empty_state"
+          >
+            <div className="w-16 h-16 rounded-full bg-gold/8 border border-gold/15 flex items-center justify-center">
+              <Star className="w-7 h-7 text-gold/50" />
+            </div>
+            <div className="text-center">
+              <p className="font-display text-xl text-cream mb-2">
+                Be the first to share your experience
+              </p>
+              <p className="text-muted-foreground font-sans text-sm">
+                Your honest review helps others on their wellness journey.
+              </p>
+            </div>
+            <Button
+              onClick={onOpenReviewModal}
+              className="bg-gold text-charcoal hover:bg-gold-bright font-sans font-semibold gap-2 shadow-gold"
+              data-ocid="reviews.primary_button"
+            >
+              <Star className="w-4 h-4 fill-charcoal" />
+              Leave a Review
+            </Button>
+          </motion.div>
+        )}
+
+        {/* Reviews grid */}
+        {!isLoading && allReviews.length > 0 && (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {allReviews.map((review, index) => (
+              <ReviewCard
+                key={Number(review.id)}
+                review={review}
+                index={index}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* CTA button */}
+        {!isLoading && allReviews.length > 0 && (
+          <FadeUp delay={0.2}>
+            <div className="flex justify-center">
+              <Button
+                onClick={onOpenReviewModal}
+                className="bg-gold text-charcoal hover:bg-gold-bright font-sans font-semibold gap-2.5 px-8 h-12 shadow-gold hover:shadow-gold-lg transition-all duration-300"
+                data-ocid="reviews.primary_button"
+              >
+                <Star className="w-4 h-4 fill-charcoal" />
+                Leave a Review
+              </Button>
+            </div>
+          </FadeUp>
+        )}
       </div>
     </section>
   );
@@ -1098,7 +1885,14 @@ function Footer() {
               Quick Links
             </h4>
             <div className="flex flex-col gap-3">
-              {["hero", "about", "services", "gallery", "contact"].map((id) => (
+              {[
+                "hero",
+                "about",
+                "services",
+                "gallery",
+                "reviews",
+                "contact",
+              ].map((id) => (
                 <button
                   type="button"
                   key={id}
@@ -1169,10 +1963,14 @@ function Footer() {
             </a>
             <a
               href="?admin"
-              className="text-muted-foreground/25 hover:text-muted-foreground/60 transition-colors text-[10px] tracking-widest uppercase"
+              className="inline-flex items-center gap-1.5 text-muted-foreground/25 hover:text-muted-foreground/60 transition-colors text-[10px] tracking-widest uppercase"
               data-ocid="footer.link"
             >
               Admin
+              <span
+                className="w-1.5 h-1.5 rounded-full bg-gold inline-block animate-pulse"
+                aria-hidden="true"
+              />
             </a>
           </div>
         </div>
@@ -1185,6 +1983,8 @@ function Footer() {
 export default function App() {
   const isAdmin =
     typeof window !== "undefined" && window.location.search.includes("admin");
+
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
 
   if (isAdmin) {
     return <AdminPanel />;
@@ -1204,13 +2004,35 @@ export default function App() {
       />
       <Navbar />
       <main>
+        <CountdownBanner />
         <HeroSection />
         <AboutSection />
         <ServicesSection />
         <GallerySection />
+        <ReviewsSection onOpenReviewModal={() => setReviewModalOpen(true)} />
         <ContactSection />
       </main>
       <Footer />
+
+      {/* Floating "Leave a Review" button */}
+      <motion.button
+        type="button"
+        onClick={() => setReviewModalOpen(true)}
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 2, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        whileHover={{ scale: 1.06 }}
+        whileTap={{ scale: 0.95 }}
+        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-gold text-charcoal font-sans font-semibold text-sm px-5 py-3 rounded-full shadow-gold hover:bg-gold-bright transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
+        data-ocid="review.open_modal_button"
+        aria-label="Leave a review"
+      >
+        <Star className="w-4 h-4 fill-charcoal shrink-0" />
+        <span className="hidden sm:inline">Leave a Review</span>
+      </motion.button>
+
+      {/* Review Modal */}
+      <ReviewModal open={reviewModalOpen} onOpenChange={setReviewModalOpen} />
     </div>
   );
 }

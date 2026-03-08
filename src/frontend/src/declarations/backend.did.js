@@ -13,10 +13,20 @@ export const Inquiry = IDL.Record({
   'name' : IDL.Text,
   'phone' : IDL.Text,
 });
+export const Review = IDL.Record({
+  'id' : IDL.Nat,
+  'name' : IDL.Text,
+  'comment' : IDL.Text,
+  'timestamp' : IDL.Int,
+  'rating' : IDL.Nat,
+});
 
 export const idlService = IDL.Service({
+  'deleteReview' : IDL.Func([IDL.Nat], [], []),
   'getAllInquiries' : IDL.Func([], [IDL.Vec(Inquiry)], []),
+  'getAllReviews' : IDL.Func([], [IDL.Vec(Review)], []),
   'submitInquiry' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
+  'submitReview' : IDL.Func([IDL.Text, IDL.Nat, IDL.Text], [IDL.Nat], []),
 });
 
 export const idlInitArgs = [];
@@ -27,10 +37,20 @@ export const idlFactory = ({ IDL }) => {
     'name' : IDL.Text,
     'phone' : IDL.Text,
   });
+  const Review = IDL.Record({
+    'id' : IDL.Nat,
+    'name' : IDL.Text,
+    'comment' : IDL.Text,
+    'timestamp' : IDL.Int,
+    'rating' : IDL.Nat,
+  });
   
   return IDL.Service({
+    'deleteReview' : IDL.Func([IDL.Nat], [], []),
     'getAllInquiries' : IDL.Func([], [IDL.Vec(Inquiry)], []),
+    'getAllReviews' : IDL.Func([], [IDL.Vec(Review)], []),
     'submitInquiry' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
+    'submitReview' : IDL.Func([IDL.Text, IDL.Nat, IDL.Text], [IDL.Nat], []),
   });
 };
 

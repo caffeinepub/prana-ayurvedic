@@ -15,9 +15,19 @@ export interface Inquiry {
   'name' : string,
   'phone' : string,
 }
+export interface Review {
+  'id' : bigint,
+  'name' : string,
+  'comment' : string,
+  'timestamp' : bigint,
+  'rating' : bigint,
+}
 export interface _SERVICE {
+  'deleteReview' : ActorMethod<[bigint], undefined>,
   'getAllInquiries' : ActorMethod<[], Array<Inquiry>>,
+  'getAllReviews' : ActorMethod<[], Array<Review>>,
   'submitInquiry' : ActorMethod<[string, string, string], undefined>,
+  'submitReview' : ActorMethod<[string, bigint, string], bigint>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

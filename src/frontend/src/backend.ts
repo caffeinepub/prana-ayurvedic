@@ -89,17 +89,41 @@ export class ExternalBlob {
         return this;
     }
 }
+export interface Review {
+    id: bigint;
+    name: string;
+    comment: string;
+    timestamp: bigint;
+    rating: bigint;
+}
 export interface Inquiry {
     service: string;
     name: string;
     phone: string;
 }
 export interface backendInterface {
+    deleteReview(id: bigint): Promise<void>;
     getAllInquiries(): Promise<Array<Inquiry>>;
+    getAllReviews(): Promise<Array<Review>>;
     submitInquiry(name: string, phone: string, service: string): Promise<void>;
+    submitReview(name: string, rating: bigint, comment: string): Promise<bigint>;
 }
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
+    async deleteReview(arg0: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteReview(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteReview(arg0);
+            return result;
+        }
+    }
     async getAllInquiries(): Promise<Array<Inquiry>> {
         if (this.processError) {
             try {
@@ -114,6 +138,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getAllReviews(): Promise<Array<Review>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllReviews();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllReviews();
+            return result;
+        }
+    }
     async submitInquiry(arg0: string, arg1: string, arg2: string): Promise<void> {
         if (this.processError) {
             try {
@@ -125,6 +163,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.submitInquiry(arg0, arg1, arg2);
+            return result;
+        }
+    }
+    async submitReview(arg0: string, arg1: bigint, arg2: string): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.submitReview(arg0, arg1, arg2);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.submitReview(arg0, arg1, arg2);
             return result;
         }
     }

@@ -1,31 +1,41 @@
 # Prana Ayurvedic
 
 ## Current State
-A single-page Ayurvedic home service website with sections: Hero, About, Services, Gallery, Contact/Booking, Footer. Customers can submit a booking (name, phone, service) via the ContactSection form, which stores data via `submitInquiry()` in the Motoko backend. The backend also has `getAllInquiries()` which returns all bookings, but there is no admin UI to view them.
+- Full website with hero, about, services, gallery, booking form, contact, and service area map sections
+- Booking (inquiry) system: visitors submit name, phone, service — stored in backend
+- Admin panel with password login to view all bookings, new booking badge notifications
+- Countdown to 15 March 2026 with launch celebration animation
+- "Check My Area" zone lookup tool in the map section
 
 ## Requested Changes (Diff)
 
 ### Add
-- Admin panel page/view accessible via a hidden route (`/admin`) or a secret URL path
-- Simple password-protected login screen (client-side password, e.g. "prana2024") to guard the admin panel
-- Bookings list table showing: customer name, phone number, and selected service for each inquiry
-- A logout button to return to the login screen
+- **Review data type** in the backend: id (Nat), name (Text), rating (Nat — 1–5), comment (Text), timestamp (Int)
+- **submitReview** backend function: any visitor can submit a review (name, rating, comment)
+- **getAllReviews** backend function: returns all reviews sorted by newest first
+- **deleteReview** backend function: admin-only delete by review id
+- **Reviews & Testimonials section** on the homepage (placed between Gallery and Contact sections)
+  - Star rating display (filled/empty gold stars)
+  - Customer name, comment, and date
+  - Animated card grid, responsive
+  - Average star rating summary at top
+- **Leave a Review modal** — floating button visible from any section on the page
+  - Form: name (text), star rating picker (1–5), comment (textarea)
+  - Submits immediately, shows in public reviews right away
+- **Admin panel reviews tab** — alongside bookings, a "Reviews" tab listing all reviews with delete button per row
 
 ### Modify
-- App routing: support toggling between the main landing page and the admin panel view (no full router needed — use URL hash or a simple state-based approach)
-- Navbar: add a discreet "Admin" link (small, subtle, in the footer area or accessible via URL) so the owner can navigate to it
+- Admin panel: add tab navigation between "Bookings" and "Reviews"
+- Navbar: add "Reviews" nav link scrolling to the reviews section
 
 ### Remove
 - Nothing removed
 
 ## Implementation Plan
-1. Create `AdminPanel.tsx` component:
-   - Login screen with password input (hardcoded password "prana2024") and submit button
-   - On successful login, show bookings table
-   - Bookings table columns: Name, Phone, Service
-   - Calls `useGetAllInquiries` (or directly calls backend) to fetch all bookings
-   - Loading and empty states
-   - Logout button
-2. Update `App.tsx` to detect `?admin` or `#admin` in the URL and render `AdminPanel` instead of the main site
-3. Add a subtle "Admin" link in the Footer (small, low-opacity) that navigates to the admin view
-4. Add a `useGetAllInquiries` hook in hooks/useQueries.ts
+1. Update `main.mo` to add Review type, submitReview, getAllReviews, deleteReview
+2. Update `backend.d.ts` to reflect new API
+3. Add ReviewsSection component to App.tsx (between Gallery and Contact)
+4. Add floating "Leave a Review" button with modal form
+5. Add Reviews tab to AdminPanel.tsx with delete functionality
+6. Add "Reviews" link to navbar navLinks array
+7. Wire up new backend hooks in useQueries.ts
