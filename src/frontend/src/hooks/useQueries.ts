@@ -10,13 +10,23 @@ export function useSubmitInquiry() {
       name,
       phone,
       service,
+      preferredDate,
+      preferredTime,
     }: {
       name: string;
       phone: string;
       service: string;
+      preferredDate: string;
+      preferredTime: string;
     }) => {
       if (!actor) throw new Error("Actor not ready");
-      return actor.submitInquiry(name, phone, service);
+      return (actor as any).submitInquiry(
+        name,
+        phone,
+        service,
+        preferredDate,
+        preferredTime,
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inquiries"] });

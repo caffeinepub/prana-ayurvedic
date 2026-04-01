@@ -1,28 +1,23 @@
-import type { Principal } from "@icp-sdk/core/principal";
-export interface Some<T> {
-    __kind__: "Some";
-    value: T;
+export interface Inquiry {
+    preferredDate: string;
+    preferredTime: string;
+    name: string;
+    phone: string;
+    service: string;
 }
-export interface None {
-    __kind__: "None";
-}
-export type Option<T> = Some<T> | None;
+
 export interface Review {
     id: bigint;
     name: string;
+    rating: bigint;
     comment: string;
     timestamp: bigint;
-    rating: bigint;
 }
-export interface Inquiry {
-    service: string;
-    name: string;
-    phone: string;
-}
-export interface backendInterface {
-    deleteReview(id: bigint): Promise<void>;
+
+export interface BackendActor {
     getAllInquiries(): Promise<Array<Inquiry>>;
-    getAllReviews(): Promise<Array<Review>>;
-    submitInquiry(name: string, phone: string, service: string): Promise<void>;
+    deleteReview(id: bigint): Promise<void>;
+    submitInquiry(name: string, phone: string, service: string, preferredDate: string, preferredTime: string): Promise<void>;
     submitReview(name: string, rating: bigint, comment: string): Promise<bigint>;
+    getAllReviews(): Promise<Array<Review>>;
 }

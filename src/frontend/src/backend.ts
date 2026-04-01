@@ -100,12 +100,14 @@ export interface Inquiry {
     service: string;
     name: string;
     phone: string;
+    preferredDate: string;
+    preferredTime: string;
 }
 export interface backendInterface {
     deleteReview(id: bigint): Promise<void>;
     getAllInquiries(): Promise<Array<Inquiry>>;
     getAllReviews(): Promise<Array<Review>>;
-    submitInquiry(name: string, phone: string, service: string): Promise<void>;
+    submitInquiry(name: string, phone: string, service: string, preferredDate: string, preferredTime: string): Promise<void>;
     submitReview(name: string, rating: bigint, comment: string): Promise<bigint>;
 }
 export class Backend implements backendInterface {
@@ -152,17 +154,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async submitInquiry(arg0: string, arg1: string, arg2: string): Promise<void> {
+    async submitInquiry(arg0: string, arg1: string, arg2: string, arg3: string, arg4: string): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.submitInquiry(arg0, arg1, arg2);
+                const result = await this.actor.submitInquiry(arg0, arg1, arg2, arg3, arg4);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.submitInquiry(arg0, arg1, arg2);
+            const result = await this.actor.submitInquiry(arg0, arg1, arg2, arg3, arg4);
             return result;
         }
     }

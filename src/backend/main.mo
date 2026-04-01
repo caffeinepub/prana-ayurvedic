@@ -5,28 +5,83 @@ import Runtime "mo:core/Runtime";
 import Order "mo:core/Order";
 import Nat "mo:core/Nat";
 import Time "mo:core/Time";
-import Migration "migration";
 
-(with migration = Migration.run)
 actor {
-  type Inquiry = {
+  // ── Migration: old Inquiry type (v1, no preferredDate) ──────────────────────
+  type InquiryV1 = {
     name : Text;
     phone : Text;
     service : Text;
   };
 
+  // ── Migration: v2 type (with preferredDate, no preferredTime) ────────────────
+  type InquiryV2 = {
+    name : Text;
+    phone : Text;
+    service : Text;
+    preferredDate : Text;
+  };
+
+  // ── Current Inquiry type (v3, with preferredDate + preferredTime) ────────────
+  type Inquiry = {
+    name : Text;
+    phone : Text;
+    service : Text;
+    preferredDate : Text;
+    preferredTime : Text;
+  };
+
   module Inquiry {
-    public func compare(inquiry1 : Inquiry, inquiry2 : Inquiry) : Order.Order {
-      switch (Text.compare(inquiry1.name, inquiry2.name)) {
-        case (#equal) { Text.compare(inquiry1.phone, inquiry2.phone) };
+    public func compare(a : Inquiry, b : Inquiry) : Order.Order {
+      switch (Text.compare(a.name, b.name)) {
+        case (#equal) { Text.compare(a.phone, b.phone) };
         case (order) { order };
       };
     };
   };
 
-  let inquiries = Map.empty<Text, Inquiry>();
+  // Old stable store (v1) — retains the name so runtime can load existing stable data.
+  let inquiries = Map.empty<Text, InquiryV1>();
 
-  // Review type definition
+  // v2 stable store.
+  let inquiriesV2 = Map.empty<Text, InquiryV2>();
+
+  // v3 stable store (current).
+  let inquiriesV3 = Map.empty<Text, Inquiry>();
+
+  // Migration flags.
+  var inquiryMigrationDone = false;
+  var inquiryMigrationV3Done = false;
+
+  system func postupgrade() {
+    // v1 -> v2
+    if (not inquiryMigrationDone) {
+      for ((k, v) in inquiries.entries()) {
+        inquiriesV2.add(k, {
+          name = v.name;
+          phone = v.phone;
+          service = v.service;
+          preferredDate = "";
+        });
+      };
+      inquiryMigrationDone := true;
+    };
+    // v2 -> v3
+    if (not inquiryMigrationV3Done) {
+      for ((k, v) in inquiriesV2.entries()) {
+        inquiriesV3.add(k, {
+          name = v.name;
+          phone = v.phone;
+          service = v.service;
+          preferredDate = v.preferredDate;
+          preferredTime = "";
+        });
+      };
+      inquiryMigrationV3Done := true;
+    };
+  };
+
+  // ── Review type ──────────────────────────────────────────────────────────────
   type Review = {
     id : Nat;
     name : Text;
@@ -36,38 +91,44 @@ actor {
   };
 
   module Review {
-    public func compare(review1 : Review, review2 : Review) : Order.Order {
-      Int.compare(review2.timestamp, review1.timestamp);
+    public func compare(r1 : Review, r2 : Review) : Order.Order {
+      Int.compare(r2.timestamp, r1.timestamp);
     };
   };
 
   let reviews = Map.empty<Nat, Review>();
   var nextReviewId = 0;
 
-  public shared ({ caller }) func submitInquiry(name : Text, phone : Text, service : Text) : async () {
-    if (inquiries.containsKey(phone)) {
+  // ── Inquiry endpoints ────────────────────────────────────────────────────────
+
+  public shared ({ caller }) func submitInquiry(
+    name : Text,
+    phone : Text,
+    service : Text,
+    preferredDate : Text,
+    preferredTime : Text,
+  ) : async () {
+    if (inquiriesV3.containsKey(phone)) {
       Runtime.trap("Inquiry with this phone number already exists");
     };
-    let newInquiry : Inquiry = {
-      name;
-      phone;
-      service;
-    };
-    inquiries.add(phone, newInquiry);
+    inquiriesV3.add(phone, { name; phone; service; preferredDate; preferredTime });
   };
 
   public shared ({ caller }) func getAllInquiries() : async [Inquiry] {
-    let entries = inquiries.values().toArray();
+    let entries = inquiriesV3.values().toArray();
     entries.sort();
   };
 
-  // Reviews/Feedback System
+  // ── Review endpoints ─────────────────────────────────────────────────────────
 
-  public shared ({ caller }) func submitReview(name : Text, rating : Nat, comment : Text) : async Nat {
+  public shared ({ caller }) func submitReview(
+    name : Text,
+    rating : Nat,
+    comment : Text,
+  ) : async Nat {
     if (rating < 1 or rating > 5) {
       Runtime.trap("Rating must be between 1 and 5");
     };
-
     let review : Review = {
       id = nextReviewId;
       name;
@@ -75,7 +136,6 @@ actor {
       comment;
       timestamp = Time.now();
     };
-
     reviews.add(nextReviewId, review);
     let currentId = nextReviewId;
     nextReviewId += 1;

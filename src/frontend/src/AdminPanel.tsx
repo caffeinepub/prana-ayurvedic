@@ -335,8 +335,14 @@ function BookingsTab() {
                 <TableHead className="text-gold/70 font-sans text-xs tracking-widest uppercase py-4">
                   Phone
                 </TableHead>
-                <TableHead className="text-gold/70 font-sans text-xs tracking-widest uppercase py-4 pr-6">
+                <TableHead className="text-gold/70 font-sans text-xs tracking-widest uppercase py-4">
                   Service
+                </TableHead>
+                <TableHead className="text-gold/70 font-sans text-xs tracking-widest uppercase py-4">
+                  Preferred Date
+                </TableHead>
+                <TableHead className="text-gold/70 font-sans text-xs tracking-widest uppercase py-4 pr-6">
+                  Preferred Time
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -361,11 +367,26 @@ function BookingsTab() {
                       {booking.phone}
                     </a>
                   </TableCell>
-                  <TableCell className="py-4 pr-6">
+                  <TableCell className="py-4">
                     <span className="inline-flex items-center gap-1.5 bg-gold/8 border border-gold/20 rounded-md px-2.5 py-1 text-gold font-sans text-xs font-medium">
                       <Leaf className="w-3 h-3 opacity-70" />
                       {booking.service}
                     </span>
+                  </TableCell>
+                  <TableCell className="py-4 text-cream/80 font-sans text-sm">
+                    {booking.preferredDate
+                      ? new Date(booking.preferredDate).toLocaleDateString(
+                          "en-IN",
+                          {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          },
+                        )
+                      : "—"}
+                  </TableCell>
+                  <TableCell className="py-4 pr-6 text-cream/80 font-sans text-sm">
+                    {booking.preferredTime || "—"}
                   </TableCell>
                 </TableRow>
               ))}
