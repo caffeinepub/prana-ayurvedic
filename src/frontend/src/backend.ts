@@ -95,6 +95,7 @@ export interface Review {
     comment: string;
     timestamp: bigint;
     rating: bigint;
+    adminReply?: string;
 }
 export interface Inquiry {
     service: string;
@@ -108,6 +109,7 @@ export interface backendInterface {
     getAllInquiries(): Promise<Array<Inquiry>>;
     getAllReviews(): Promise<Array<Review>>;
     submitInquiry(name: string, phone: string, service: string, preferredDate: string, preferredTime: string): Promise<void>;
+    replyToReview(id: bigint, reply: string): Promise<void>;
     submitReview(name: string, rating: bigint, comment: string): Promise<bigint>;
 }
 export class Backend implements backendInterface {
@@ -141,17 +143,21 @@ export class Backend implements backendInterface {
         }
     }
     async getAllReviews(): Promise<Array<Review>> {
+        const mapReview = (r: any): Review => ({
+            ...r,
+            adminReply: r.adminReply && r.adminReply.length > 0 ? r.adminReply[0] : undefined,
+        });
         if (this.processError) {
             try {
                 const result = await this.actor.getAllReviews();
-                return result;
+                return result.map(mapReview);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getAllReviews();
-            return result;
+            return result.map(mapReview);
         }
     }
     async submitInquiry(arg0: string, arg1: string, arg2: string, arg3: string, arg4: string): Promise<void> {
@@ -165,6 +171,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.submitInquiry(arg0, arg1, arg2, arg3, arg4);
+            return result;
+        }
+    }
+    async replyToReview(arg0: bigint, arg1: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.replyToReview(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.replyToReview(arg0, arg1);
             return result;
         }
     }

@@ -89,3 +89,17 @@ export function useDeleteReview() {
     },
   });
 }
+
+export function useReplyToReview() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, reply }: { id: bigint; reply: string }) => {
+      if (!actor) throw new Error("Actor not ready");
+      return actor.replyToReview(id, reply);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["reviews"] });
+    },
+  });
+}

@@ -1,28 +1,16 @@
-import Map "mo:core/Map";
-import Iter "mo:core/Iter";
-import Array "mo:core/Array";
-import Runtime "mo:core/Runtime";
-import Order "mo:core/Order";
 import Nat "mo:core/Nat";
 import Time "mo:core/Time";
+import Order "mo:core/Order";
+import Map "mo:core/Map";
+import Runtime "mo:core/Runtime";
+import Iter "mo:core/Iter";
+import Array "mo:core/Array";
+import Migration "migration"; // separate migration module
 
+// Use the `with` clause to apply the migration logic on upgrade
+(with migration = Migration.run)
 actor {
-  // ── Migration: old Inquiry type (v1, no preferredDate) ──────────────────────
-  type InquiryV1 = {
-    name : Text;
-    phone : Text;
-    service : Text;
-  };
-
-  // ── Migration: v2 type (with preferredDate, no preferredTime) ────────────────
-  type InquiryV2 = {
-    name : Text;
-    phone : Text;
-    service : Text;
-    preferredDate : Text;
-  };
-
-  // ── Current Inquiry type (v3, with preferredDate + preferredTime) ────────────
+  // ── Booking (Inquiry) type ──────────────────────────────────────────────────
   type Inquiry = {
     name : Text;
     phone : Text;
@@ -40,46 +28,7 @@ actor {
     };
   };
 
-  // Old stable store (v1) — retains the name so runtime can load existing stable data.
-  let inquiries = Map.empty<Text, InquiryV1>();
-
-  // v2 stable store.
-  let inquiriesV2 = Map.empty<Text, InquiryV2>();
-
-  // v3 stable store (current).
-  let inquiriesV3 = Map.empty<Text, Inquiry>();
-
-  // Migration flags.
-  var inquiryMigrationDone = false;
-  var inquiryMigrationV3Done = false;
-
-  system func postupgrade() {
-    // v1 -> v2
-    if (not inquiryMigrationDone) {
-      for ((k, v) in inquiries.entries()) {
-        inquiriesV2.add(k, {
-          name = v.name;
-          phone = v.phone;
-          service = v.service;
-          preferredDate = "";
-        });
-      };
-      inquiryMigrationDone := true;
-    };
-    // v2 -> v3
-    if (not inquiryMigrationV3Done) {
-      for ((k, v) in inquiriesV2.entries()) {
-        inquiriesV3.add(k, {
-          name = v.name;
-          phone = v.phone;
-          service = v.service;
-          preferredDate = v.preferredDate;
-          preferredTime = "";
-        });
-      };
-      inquiryMigrationV3Done := true;
-    };
-  };
+  let inquiries = Map.empty<Text, Inquiry>();
 
   // ── Review type ──────────────────────────────────────────────────────────────
   type Review = {
@@ -88,18 +37,25 @@ actor {
     rating : Nat;
     comment : Text;
     timestamp : Int;
+    adminReply : ?Text;
   };
 
   module Review {
     public func compare(r1 : Review, r2 : Review) : Order.Order {
-      Int.compare(r2.timestamp, r1.timestamp);
+      let timestampOrder = Int.compare(r2.timestamp, r1.timestamp);
+      switch (timestampOrder) {
+        case (#equal) {
+          Nat.compare(r1.id, r2.id);
+        };
+        case (other) { other };
+      };
     };
   };
 
   let reviews = Map.empty<Nat, Review>();
-  var nextReviewId = 0;
+  var nextId = 0;
 
-  // ── Inquiry endpoints ────────────────────────────────────────────────────────
+  // ── Booking endpoints ──────────────────────────────────────────────────────
 
   public shared ({ caller }) func submitInquiry(
     name : Text,
@@ -108,43 +64,38 @@ actor {
     preferredDate : Text,
     preferredTime : Text,
   ) : async () {
-    if (inquiriesV3.containsKey(phone)) {
-      Runtime.trap("Inquiry with this phone number already exists");
+    if (inquiries.containsKey(phone)) {
+      Runtime.trap("Booking with this phone number already exists");
     };
-    inquiriesV3.add(phone, { name; phone; service; preferredDate; preferredTime });
+    inquiries.add(phone, { name; phone; service; preferredDate; preferredTime });
   };
 
-  public shared ({ caller }) func getAllInquiries() : async [Inquiry] {
-    let entries = inquiriesV3.values().toArray();
-    entries.sort();
+  public query ({ caller }) func getAllInquiries() : async [Inquiry] {
+    inquiries.values().toArray().sort();
   };
 
   // ── Review endpoints ─────────────────────────────────────────────────────────
 
-  public shared ({ caller }) func submitReview(
-    name : Text,
-    rating : Nat,
-    comment : Text,
-  ) : async Nat {
+  public shared ({ caller }) func submitReview(name : Text, rating : Nat, comment : Text) : async Nat {
     if (rating < 1 or rating > 5) {
       Runtime.trap("Rating must be between 1 and 5");
     };
-    let review : Review = {
-      id = nextReviewId;
+    let id = nextId;
+    let review = {
+      id;
       name;
       rating;
       comment;
       timestamp = Time.now();
+      adminReply = null;
     };
-    reviews.add(nextReviewId, review);
-    let currentId = nextReviewId;
-    nextReviewId += 1;
-    currentId;
+    reviews.add(id, review);
+    nextId += 1;
+    id;
   };
 
-  public shared ({ caller }) func getAllReviews() : async [Review] {
-    let entries = reviews.values().toArray();
-    entries.sort();
+  public query ({ caller }) func getAllReviews() : async [Review] {
+    reviews.values().toArray().sort();
   };
 
   public shared ({ caller }) func deleteReview(id : Nat) : async () {
@@ -153,4 +104,14 @@ actor {
     };
     reviews.remove(id);
   };
+
+  public shared ({ caller }) func replyToReview(id : Nat, reply : Text) : async () {
+    switch (reviews.get(id)) {
+      case (null) { Runtime.trap("Review does not exist") };
+      case (?existing) {
+        reviews.add(id, { existing with adminReply = ?reply });
+      };
+    };
+  };
 };
+

@@ -10,12 +10,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Bell,
   Leaf,
   Loader2,
   Lock,
   LogOut,
+  MessageSquareReply,
   ShieldCheck,
   Star,
   Trash2,
@@ -26,6 +28,7 @@ import {
   useDeleteReview,
   useGetAllInquiries,
   useGetAllReviews,
+  useReplyToReview,
 } from "./hooks/useQueries";
 
 const ADMIN_PASSWORD = "prana2024";
@@ -402,6 +405,8 @@ function BookingsTab() {
 function ReviewsTab() {
   const { data: reviews, isLoading, isError } = useGetAllReviews();
   const { mutate: deleteReview, isPending: isDeleting } = useDeleteReview();
+  const { mutate: replyToReview, isPending: isReplying } = useReplyToReview();
+  const [replyInputs, setReplyInputs] = useState<Record<string, string>>({});
   const allReviews = reviews ?? [];
   const newCount = useNewReviewsCount(allReviews.length);
 
@@ -411,12 +416,33 @@ function ReviewsTab() {
     }
   }, [allReviews.length, isLoading, isError, reviews]);
 
+  // Pre-fill reply inputs from existing adminReply
+  useEffect(() => {
+    if (reviews) {
+      setReplyInputs((prev) => {
+        const next = { ...prev };
+        for (const r of reviews) {
+          const key = String(r.id);
+          if (!(key in next) && r.adminReply) {
+            next[key] = r.adminReply;
+          }
+        }
+        return next;
+      });
+    }
+  }, [reviews]);
+
   const handleDelete = (id: bigint, name: string) => {
     if (
       window.confirm(`Delete review from "${name}"? This cannot be undone.`)
     ) {
       deleteReview(id);
     }
+  };
+
+  const handleReply = (id: bigint) => {
+    const reply = replyInputs[String(id)] ?? "";
+    replyToReview({ id, reply });
   };
 
   return (
@@ -504,80 +530,105 @@ function ReviewsTab() {
         </motion.div>
       )}
 
-      {/* Table */}
+      {/* Review Cards */}
       {!isLoading && !isError && allReviews.length > 0 && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.15 }}
-          className="bg-charcoal-mid border border-gold/10 rounded-xl overflow-hidden"
+          className="flex flex-col gap-4"
         >
-          <Table data-ocid="admin.table">
-            <TableHeader>
-              <TableRow className="border-b border-gold/10 hover:bg-transparent">
-                <TableHead className="text-gold/70 font-sans text-xs tracking-widest uppercase py-4 pl-6 w-8">
-                  #
-                </TableHead>
-                <TableHead className="text-gold/70 font-sans text-xs tracking-widest uppercase py-4">
-                  Name
-                </TableHead>
-                <TableHead className="text-gold/70 font-sans text-xs tracking-widest uppercase py-4">
-                  Rating
-                </TableHead>
-                <TableHead className="text-gold/70 font-sans text-xs tracking-widest uppercase py-4">
-                  Comment
-                </TableHead>
-                <TableHead className="text-gold/70 font-sans text-xs tracking-widest uppercase py-4">
-                  Date
-                </TableHead>
-                <TableHead className="text-gold/70 font-sans text-xs tracking-widest uppercase py-4 pr-6 text-right">
-                  Action
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {allReviews.map((review, index) => (
-                <TableRow
-                  key={Number(review.id)}
-                  className="border-b border-gold/5 last:border-0 hover:bg-gold/3 transition-colors duration-150"
-                  data-ocid={`admin.row.${index + 1}`}
-                >
-                  <TableCell className="text-muted-foreground font-sans text-sm py-4 pl-6">
-                    {index + 1}
-                  </TableCell>
-                  <TableCell className="text-cream font-sans text-sm py-4 font-medium whitespace-nowrap">
+          {allReviews.map((review, index) => (
+            <motion.div
+              key={Number(review.id)}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+              className="bg-charcoal-mid border border-gold/15 rounded-xl p-5 flex flex-col gap-4"
+              data-ocid={`admin.row.${index + 1}`}
+            >
+              {/* Top row: name, stars, date, delete */}
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="flex flex-col gap-1">
+                  <span className="text-cream font-sans font-semibold text-sm">
                     {review.name}
-                  </TableCell>
-                  <TableCell className="py-4">
-                    <StarDisplay rating={Number(review.rating)} />
-                  </TableCell>
-                  <TableCell className="py-4 max-w-[220px]">
-                    <p className="text-muted-foreground font-sans text-xs leading-relaxed line-clamp-2">
-                      {review.comment}
-                    </p>
-                  </TableCell>
-                  <TableCell className="py-4 whitespace-nowrap">
-                    <span className="text-muted-foreground font-sans text-xs">
-                      {formatTimestamp(review.timestamp)}
-                    </span>
-                  </TableCell>
-                  <TableCell className="py-4 pr-6 text-right">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={isDeleting}
-                      onClick={() => handleDelete(review.id, review.name)}
-                      className="border-red-500/25 text-red-400 hover:bg-red-500/10 hover:border-red-500/50 hover:text-red-300 font-sans text-xs gap-1.5 transition-all duration-200 h-8"
-                      data-ocid={`admin.delete_button.${index + 1}`}
-                    >
-                      <Trash2 className="w-3 h-3" />
-                      Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                  </span>
+                  <StarDisplay rating={Number(review.rating)} />
+                </div>
+                <div className="flex items-center gap-3 ml-auto">
+                  <span className="text-muted-foreground font-sans text-xs">
+                    {formatTimestamp(review.timestamp)}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={isDeleting}
+                    onClick={() => handleDelete(review.id, review.name)}
+                    className="border-red-500/25 text-red-400 hover:bg-red-500/10 hover:border-red-500/50 hover:text-red-300 font-sans text-xs gap-1.5 transition-all duration-200 h-8"
+                    data-ocid={`admin.delete_button.${index + 1}`}
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    Delete
+                  </Button>
+                </div>
+              </div>
+
+              {/* Comment */}
+              <p className="text-muted-foreground font-sans text-sm leading-relaxed">
+                {review.comment}
+              </p>
+
+              {/* Existing reply display */}
+              {review.adminReply && (
+                <div className="bg-gold/5 border border-gold/20 rounded-lg px-4 py-3">
+                  <p className="text-gold/80 font-sans text-xs font-semibold uppercase tracking-wider mb-1">
+                    Your Response
+                  </p>
+                  <p className="text-cream/75 font-sans text-sm leading-relaxed">
+                    {review.adminReply}
+                  </p>
+                </div>
+              )}
+
+              {/* Reply area */}
+              <div className="flex flex-col gap-2 pt-2 border-t border-gold/8">
+                <span className="text-gold/70 font-sans text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
+                  <MessageSquareReply className="w-3.5 h-3.5" />
+                  {review.adminReply ? "Edit Your Reply" : "Add a Reply"}
+                </span>
+                <Textarea
+                  value={replyInputs[String(review.id)] ?? ""}
+                  onChange={(e) =>
+                    setReplyInputs((prev) => ({
+                      ...prev,
+                      [String(review.id)]: e.target.value,
+                    }))
+                  }
+                  placeholder="Write your response to this customer…"
+                  className="bg-charcoal border-gold/20 text-cream placeholder:text-muted-foreground/50 font-sans text-sm resize-none min-h-[80px] focus:border-gold/40"
+                  data-ocid={`admin.textarea.${index + 1}`}
+                />
+                <div className="flex justify-end">
+                  <Button
+                    size="sm"
+                    disabled={
+                      isReplying || !replyInputs[String(review.id)]?.trim()
+                    }
+                    onClick={() => handleReply(review.id)}
+                    className="bg-gold text-charcoal hover:bg-gold/90 font-sans text-xs font-semibold gap-1.5 h-8 transition-all duration-200"
+                    data-ocid={`admin.save_button.${index + 1}`}
+                  >
+                    {isReplying ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <MessageSquareReply className="w-3 h-3" />
+                    )}
+                    Save Reply
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          ))}
         </motion.div>
       )}
     </div>

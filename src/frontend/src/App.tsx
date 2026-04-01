@@ -1843,6 +1843,16 @@ function ReviewCard({ review, index }: { review: Review; index: number }) {
           {review.name}
         </span>
       </div>
+      {review.adminReply && (
+        <div className="mt-3 pt-3 border-t border-gold/10 bg-charcoal-mid/40 rounded-lg px-4 py-3">
+          <p className="text-gold/80 font-sans text-xs font-semibold uppercase tracking-wider mb-1">
+            Response from Prana Ayurvedic
+          </p>
+          <p className="text-cream/75 font-sans text-sm leading-relaxed">
+            {review.adminReply}
+          </p>
+        </div>
+      )}
     </motion.div>
   );
 }

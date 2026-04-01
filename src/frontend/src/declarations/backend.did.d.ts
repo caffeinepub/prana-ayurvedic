@@ -23,11 +23,13 @@ export interface Review {
   'comment' : string,
   'timestamp' : bigint,
   'rating' : bigint,
+  'adminReply' : [] | [string],
 }
 export interface _SERVICE {
   'deleteReview' : ActorMethod<[bigint], undefined>,
   'getAllInquiries' : ActorMethod<[], Array<Inquiry>>,
   'getAllReviews' : ActorMethod<[], Array<Review>>,
+  'replyToReview' : ActorMethod<[bigint, string], undefined>,
   'submitInquiry' : ActorMethod<[string, string, string, string, string], undefined>,
   'submitReview' : ActorMethod<[string, bigint, string], bigint>,
 }
