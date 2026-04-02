@@ -115,6 +115,7 @@ function SectionHeading({
 const SERVICES = [
   {
     name: "Uzhichil",
+    price: 1500,
     image: "/assets/generated/uzhichil-massage.dim_800x600.jpg",
     description:
       "A classical Kerala oil massage performed with rhythmic strokes using warm medicated herbal oils. Ideal for deep relaxation, improved circulation, and total rejuvenation of the body.",
@@ -122,6 +123,7 @@ const SERVICES = [
   },
   {
     name: "Swedana",
+    price: 700,
     image: "/assets/generated/swedana-therapy.dim_800x600.jpg",
     description:
       "A therapeutic herbal steam treatment that opens pores, eliminates toxins, and deeply relieves muscle tension. Herbal vapors penetrate the body to restore balance and vitality.",
@@ -129,6 +131,7 @@ const SERVICES = [
   },
   {
     name: "Abhyanga",
+    price: 1500,
     image: "/assets/generated/abhyanga-massage.dim_800x600.jpg",
     description:
       "A full-body warm herbal oil massage rooted in Ayurvedic tradition. Nourishes tissues, calms the nervous system, and restores balance between the doshas — mind, body, and spirit.",
@@ -136,6 +139,7 @@ const SERVICES = [
   },
   {
     name: "Pindasweda",
+    price: 1500,
     image: "/assets/generated/pindasweda-therapy.dim_800x600.jpg",
     description:
       "A unique bolus massage using pouches of medicated rice dipped in warm herbal milk. Excellent for pain relief, nourishing the skin, and deep muscle rehabilitation.",
@@ -143,6 +147,7 @@ const SERVICES = [
   },
   {
     name: "Njavarakkizhi",
+    price: 1700,
     image: "/assets/generated/njavarakkizhi-therapy.dim_800x600.jpg",
     description:
       "A highly rejuvenating treatment using boluses of cooked Navara rice tied in muslin cloth and dipped in warm herbal milk. Strengthens muscles, nourishes the skin, and relieves neurological conditions.",
@@ -150,6 +155,7 @@ const SERVICES = [
   },
   {
     name: "Soundarya Vardhini",
+    price: 4000,
     image: "/assets/generated/soundarya-vardhini-therapy.dim_800x600.jpg",
     description:
       "A traditional Ayurvedic beauty therapy combining herbal face packs, warm oil massage, and natural treatments to enhance skin glow, reduce pigmentation, and restore natural radiance.",
@@ -157,6 +163,7 @@ const SERVICES = [
   },
   {
     name: "Post Delivery Care",
+    price: 1700,
     image: "/assets/generated/post-delivery-care-therapy.dim_800x600.jpg",
     description:
       "Specialized postnatal Ayurvedic care for new mothers — gentle herbal oil massages, abdominal binding, and restorative therapies to aid recovery, reduce fatigue, and restore strength after childbirth.",
@@ -184,9 +191,9 @@ function Navbar() {
     { label: "Home", id: "hero" },
     { label: "About", id: "about" },
     { label: "Services", id: "services" },
+    { label: "Reviews", id: "reviews" },
     { label: "Packages", id: "packages" },
     { label: "Gallery", id: "gallery" },
-    { label: "Reviews", id: "reviews" },
     { label: "Contact", id: "contact" },
   ];
 
@@ -487,7 +494,7 @@ function AboutSection() {
                 {[
                   { value: "4+", label: "Therapies" },
                   { value: "15km", label: "Service Area" },
-                  { value: "₹1,500", label: "Per Session" },
+                  { value: "₹700+", label: "Per Session" },
                 ].map((stat) => (
                   <div key={stat.label} className="text-center">
                     <div className="font-display text-3xl text-gold mb-5">
@@ -618,7 +625,7 @@ function ServicesSection() {
             <FadeUp key={service.name} delay={index * 0.1}>
               <div
                 data-ocid={service.ocid}
-                className="group relative bg-charcoal border border-gold/10 rounded-lg overflow-hidden cursor-default transition-all duration-500 hover:border-gold/40 hover:shadow-gold gold-glow-hover"
+                className="group relative bg-charcoal border border-gold/25 rounded-lg overflow-hidden cursor-default transition-all duration-500 hover:border-gold/50 hover:shadow-gold gold-glow-hover"
               >
                 {/* Image */}
                 <div className="relative overflow-hidden aspect-[4/3]">
@@ -630,9 +637,9 @@ function ServicesSection() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-transparent to-transparent" />
                   {/* Price badge */}
-                  <div className="absolute top-3 right-3 bg-charcoal/80 backdrop-blur-sm border border-gold/40 rounded px-2.5 py-1">
-                    <span className="text-gold font-display text-sm font-semibold">
-                      ₹1,500
+                  <div className="absolute top-3 right-3 bg-gold rounded px-2.5 py-1">
+                    <span className="text-charcoal font-display text-sm font-bold">
+                      ₹{service.price.toLocaleString("en-IN")}
                     </span>
                   </div>
                 </div>
@@ -1272,7 +1279,7 @@ function ContactSection() {
                     </div>
 
                     <p className="text-center text-xs text-muted-foreground font-sans">
-                      ₹1,500 per session · Home service within 15 km of
+                      Sessions from ₹700 · Home service within 15 km of
                       Chandapura
                     </p>
                     <p className="text-center text-xs text-muted-foreground font-sans">
@@ -1420,8 +1427,7 @@ function ContactSection() {
                       <strong className="text-gold">
                         15 km of Chandapura, Bangalore
                       </strong>{" "}
-                      at no extra charge. Your ₹1,500 session fee is all you
-                      pay.
+                      at no extra charge. Session pricing starts from ₹700.
                     </p>
                   </div>
                 </div>
@@ -1494,7 +1500,7 @@ function ContactSection() {
                         {s.name}
                       </span>
                       <span className="text-gold font-display text-base">
-                        ₹1,500
+                        ₹{s.price.toLocaleString("en-IN")}
                       </span>
                     </div>
                   ))}
@@ -1798,7 +1804,7 @@ function ReviewCard({ review, index }: { review: Review; index: number }) {
         delay: index * 0.08,
         ease: [0.22, 1, 0.36, 1],
       }}
-      className="group bg-charcoal border border-gold/10 rounded-xl p-6 hover:border-gold/30 hover:shadow-gold transition-all duration-300 flex flex-col gap-4"
+      className="group bg-charcoal border border-gold/25 border-l-2 border-l-gold/60 rounded-xl p-6 hover:border-gold/50 hover:shadow-gold transition-all duration-300 flex flex-col gap-4"
       data-ocid={`reviews.item.${index + 1}`}
     >
       {/* Stars + date row */}
@@ -2159,9 +2165,9 @@ export default function App() {
         <HeroSection />
         <AboutSection />
         <ServicesSection />
+        <ReviewsSection onOpenReviewModal={() => setReviewModalOpen(true)} />
         <PackagesSection />
         <GallerySection />
-        <ReviewsSection onOpenReviewModal={() => setReviewModalOpen(true)} />
         <ContactSection />
       </main>
       <Footer />
