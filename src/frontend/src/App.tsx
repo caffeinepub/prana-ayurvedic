@@ -142,6 +142,27 @@ const SERVICES = [
       "A unique bolus massage using pouches of medicated rice dipped in warm herbal milk. Excellent for pain relief, nourishing the skin, and deep muscle rehabilitation.",
     ocid: "services.item.4",
   },
+  {
+    name: "Njavarakkizhi",
+    image: "/assets/generated/njavarakkizhi-therapy.dim_800x600.jpg",
+    description:
+      "A highly rejuvenating treatment using boluses of cooked Navara rice tied in muslin cloth and dipped in warm herbal milk. Strengthens muscles, nourishes the skin, and relieves neurological conditions.",
+    ocid: "services.item.5",
+  },
+  {
+    name: "Soundarya Vardhini",
+    image: "/assets/generated/soundarya-vardhini-therapy.dim_800x600.jpg",
+    description:
+      "A traditional Ayurvedic beauty therapy combining herbal face packs, warm oil massage, and natural treatments to enhance skin glow, reduce pigmentation, and restore natural radiance.",
+    ocid: "services.item.6",
+  },
+  {
+    name: "Post Delivery Care",
+    image: "/assets/generated/post-delivery-care-therapy.dim_800x600.jpg",
+    description:
+      "Specialized postnatal Ayurvedic care for new mothers — gentle herbal oil massages, abdominal binding, and restorative therapies to aid recovery, reduce fatigue, and restore strength after childbirth.",
+    ocid: "services.item.7",
+  },
 ];
 
 // ── Floating Petals for Launch Celebration ───────────────────────────────────

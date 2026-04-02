@@ -5,10 +5,10 @@ import Map "mo:core/Map";
 import Runtime "mo:core/Runtime";
 import Iter "mo:core/Iter";
 import Array "mo:core/Array";
-import Migration "migration"; // separate migration module
+ // separate migration module
 
 // Use the `with` clause to apply the migration logic on upgrade
-(with migration = Migration.run)
+
 actor {
   // ── Booking (Inquiry) type ──────────────────────────────────────────────────
   type Inquiry = {
