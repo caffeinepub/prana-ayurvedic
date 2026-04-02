@@ -1173,7 +1173,7 @@ function ContactSection() {
                         value={preferredDate}
                         min={new Date().toISOString().split("T")[0]}
                         onChange={(e) => setPreferredDate(e.target.value)}
-                        className="bg-white border-gold/20 text-charcoal placeholder:text-charcoal/50 focus:border-gold/60 focus:ring-gold/20 h-12 font-sans"
+                        className="bg-charcoal-light border-gold/20 text-cream placeholder:text-cream/50 focus:border-gold/60 focus:ring-gold/20 h-12 font-sans [color-scheme:dark]"
                         data-ocid="contact.input"
                         required
                       />
