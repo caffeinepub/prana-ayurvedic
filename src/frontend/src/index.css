@@ -2,56 +2,85 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 142 71% 22%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 25 95% 40%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 142 71% 22%;
-  --radius: 0.5rem;
+@font-face {
+  font-family: "Fraunces";
+  src: url("/assets/fonts/Fraunces.woff2") format("woff2");
+  font-weight: 300 900;
+  font-display: swap;
 }
 
-.dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 142 71% 45%;
-  --primary-foreground: 222.2 47.4% 11.2%;
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --accent: 25 95% 55%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 142 71% 45%;
+@font-face {
+  font-family: "General Sans";
+  src: url("/assets/fonts/GeneralSans.woff2") format("woff2");
+  font-weight: 200 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/assets/fonts/InstrumentSerif-Italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  /* ── Shadcn semantic tokens (OKLCH) ── */
+  --background: 0.97 0.015 85;
+  --foreground: 0.22 0.04 55;
+  --card: 0.95 0.02 80;
+  --card-foreground: 0.22 0.04 55;
+  --popover: 0.95 0.02 80;
+  --popover-foreground: 0.22 0.04 55;
+  --primary: 0.32 0.09 145;
+  --primary-foreground: 0.97 0.01 85;
+  --secondary: 0.92 0.025 80;
+  --secondary-foreground: 0.22 0.04 55;
+  --muted: 0.92 0.025 80;
+  --muted-foreground: 0.52 0.05 60;
+  --accent: 0.55 0.15 45;
+  --accent-foreground: 0.97 0.01 85;
+  --destructive: 0.55 0.18 25;
+  --destructive-foreground: 0.97 0.01 85;
+  --border: 0.85 0.03 75;
+  --input: 0.85 0.03 75;
+  --ring: 0.32 0.09 145;
+  --radius: 0.5rem;
+
+  /* ── Chart colors ── */
+  --chart-1: 0.65 0.15 45;
+  --chart-2: 0.55 0.12 145;
+  --chart-3: 0.7 0.14 65;
+  --chart-4: 0.75 0.12 82;
+  --chart-5: 0.45 0.1 300;
+
+  /* ── Sidebar ── */
+  --sidebar: 0.95 0.02 80;
+  --sidebar-foreground: 0.22 0.04 55;
+  --sidebar-primary: 0.32 0.09 145;
+  --sidebar-primary-foreground: 0.97 0.01 85;
+  --sidebar-accent: 0.92 0.025 80;
+  --sidebar-accent-foreground: 0.22 0.04 55;
+  --sidebar-border: 0.85 0.03 75;
+  --sidebar-ring: 0.32 0.09 145;
+
+  /* ── Custom palette tokens ── */
+  --gold: 0.75 0.12 82;
+  --gold-bright: 0.82 0.14 85;
+  --gold-dim: 0.68 0.09 80;
+  --amber: 0.7 0.14 65;
+  --cream: 0.96 0.02 85;
+  --charcoal: 0.2 0.04 55;
+  --charcoal-mid: 0.25 0.045 58;
+  --charcoal-light: 0.32 0.05 60;
+  --forest: 0.32 0.09 145;
 }
 
 * {
-  border-color: hsl(var(--border));
+  border-color: oklch(var(--border));
 }
 
 body {
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
+  background-color: oklch(var(--background));
+  color: oklch(var(--foreground));
 }

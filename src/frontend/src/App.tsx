@@ -36,7 +36,6 @@ import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import AdminPanel from "./AdminPanel";
 import type { Review } from "./backend";
-import { useCountdown } from "./hooks/useCountdown";
 import {
   useGetAllInquiries,
   useGetAllReviews,
@@ -165,258 +164,6 @@ const SERVICES = [
   },
 ];
 
-// ── Floating Petals for Launch Celebration ───────────────────────────────────
-const PETAL_CONFIGS = [
-  { id: "p1", left: "8%", delay: 0, duration: 5.5, size: 18 },
-  { id: "p2", left: "18%", delay: 0.6, duration: 6.2, size: 14 },
-  { id: "p3", left: "28%", delay: 1.2, duration: 5, size: 20 },
-  { id: "p4", left: "38%", delay: 0.3, duration: 6.8, size: 16 },
-  { id: "p5", left: "48%", delay: 0.9, duration: 5.3, size: 22 },
-  { id: "p6", left: "58%", delay: 1.5, duration: 6, size: 12 },
-  { id: "p7", left: "68%", delay: 0.4, duration: 5.7, size: 18 },
-  { id: "p8", left: "78%", delay: 1.1, duration: 6.4, size: 15 },
-  { id: "p9", left: "88%", delay: 0.7, duration: 5.1, size: 20 },
-  { id: "p10", left: "93%", delay: 1.8, duration: 6.6, size: 13 },
-  { id: "p11", left: "13%", delay: 2.0, duration: 5.8, size: 17 },
-  { id: "p12", left: "53%", delay: 2.3, duration: 6.1, size: 14 },
-];
-
-// ── Countdown Banner ─────────────────────────────────────────────────────────
-function CountdownBanner() {
-  const { days, hours, minutes, seconds, isLaunched } = useCountdown();
-  const [prevValues, setPrevValues] = useState({
-    days,
-    hours,
-    minutes,
-    seconds,
-  });
-  const [flipping, setFlipping] = useState({
-    days: false,
-    hours: false,
-    minutes: false,
-    seconds: false,
-  });
-
-  useEffect(() => {
-    const newFlipping = {
-      days: false,
-      hours: false,
-      minutes: false,
-      seconds: false,
-    };
-    if (prevValues.seconds !== seconds) newFlipping.seconds = true;
-    if (prevValues.minutes !== minutes) newFlipping.minutes = true;
-    if (prevValues.hours !== hours) newFlipping.hours = true;
-    if (prevValues.days !== days) newFlipping.days = true;
-
-    if (Object.values(newFlipping).some(Boolean)) {
-      setFlipping(newFlipping);
-      const timer = setTimeout(
-        () =>
-          setFlipping({
-            days: false,
-            hours: false,
-            minutes: false,
-            seconds: false,
-          }),
-        300,
-      );
-      setPrevValues({ days, hours, minutes, seconds });
-      return () => clearTimeout(timer);
-    }
-  }, [days, hours, minutes, seconds, prevValues]);
-
-  if (isLaunched) {
-    // ── Launch Celebration ──────────────────────────────────────────────────
-    return (
-      <div className="relative overflow-hidden bg-charcoal-mid border-b border-gold/20 py-16 md:py-24">
-        {/* Floating petals */}
-        {PETAL_CONFIGS.map((petal) => (
-          <motion.div
-            key={petal.id}
-            className="absolute pointer-events-none"
-            style={{ left: petal.left, bottom: "-20px" }}
-            animate={{ y: [0, -600], opacity: [0, 0.7, 0.5, 0] }}
-            transition={{
-              duration: petal.duration,
-              delay: petal.delay,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "easeOut",
-            }}
-          >
-            <Leaf
-              style={{ width: petal.size, height: petal.size }}
-              className="text-gold opacity-60 rotate-12"
-            />
-          </motion.div>
-        ))}
-
-        {/* Gold glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-40 bg-gold/8 blur-3xl rounded-full pointer-events-none" />
-
-        <div className="relative z-10 text-center px-6 max-w-3xl mx-auto">
-          {/* Pulsing icon */}
-          <motion.div
-            className="flex justify-center mb-6"
-            animate={{ scale: [1, 1.12, 1] }}
-            transition={{
-              duration: 2.5,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "easeInOut",
-            }}
-          >
-            <div className="relative">
-              <div className="absolute inset-0 rounded-full bg-gold/20 animate-ping" />
-              <div className="relative w-16 h-16 rounded-full bg-gold/15 border border-gold/30 flex items-center justify-center shadow-gold">
-                <Sparkles className="w-7 h-7 text-gold" />
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="font-display text-4xl md:text-6xl text-gold leading-tight mb-4"
-            style={{ textShadow: "0 0 40px oklch(0.75 0.12 85 / 0.5)" }}
-          >
-            We Are Now Open!
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-cream/85 font-sans text-base md:text-lg leading-relaxed mb-8"
-          >
-            Ancient healing is now at your doorstep. Book your first session
-            today.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            <Button
-              onClick={() =>
-                document
-                  .getElementById("contact")
-                  ?.scrollIntoView({ behavior: "smooth" })
-              }
-              className="bg-gold text-charcoal hover:bg-gold-bright font-sans font-semibold text-base px-10 h-13 tracking-wide transition-all duration-300 shadow-gold hover:shadow-gold-lg"
-              data-ocid="launch.primary_button"
-            >
-              Book Now
-            </Button>
-          </motion.div>
-        </div>
-      </div>
-    );
-  }
-
-  // ── Pre-launch Countdown Banner ─────────────────────────────────────────
-  const tiles = [
-    { value: days, label: "Days", key: "days" as const },
-    { value: hours, label: "Hours", key: "hours" as const },
-    { value: minutes, label: "Minutes", key: "minutes" as const },
-    { value: seconds, label: "Seconds", key: "seconds" as const },
-  ];
-
-  return (
-    <div className="relative overflow-hidden bg-charcoal-mid border-b border-gold/20 py-8 md:py-10">
-      {/* Gold glow at top */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-xl h-1 bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
-      <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-96 h-32 bg-gold/6 blur-3xl rounded-full pointer-events-none" />
-
-      <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-        {/* Label */}
-        <motion.span
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="inline-block text-gold text-xs tracking-[0.35em] uppercase font-sans mb-2"
-        >
-          Launching
-        </motion.span>
-
-        {/* Date */}
-        <motion.p
-          initial={{ opacity: 0, y: -6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="font-display text-cream text-2xl md:text-3xl mb-6"
-        >
-          15 March 2026
-        </motion.p>
-
-        {/* Countdown Tiles */}
-        <div className="flex items-center justify-center gap-3 md:gap-5 mb-5">
-          {tiles.map((tile, i) => (
-            <motion.div
-              key={tile.key}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.15 + i * 0.07 }}
-              className="flex flex-col items-center"
-            >
-              <div className="relative bg-charcoal border border-gold/20 rounded-xl w-16 h-16 md:w-20 md:h-20 flex items-center justify-center backdrop-blur-sm shadow-gold overflow-hidden">
-                {/* Subtle inner glow */}
-                <div className="absolute inset-0 bg-gradient-to-b from-gold/5 to-transparent pointer-events-none" />
-                <AnimatePresence mode="popLayout">
-                  <motion.span
-                    key={tile.value}
-                    initial={{
-                      y: flipping[tile.key] ? -20 : 0,
-                      opacity: flipping[tile.key] ? 0 : 1,
-                      scale: flipping[tile.key] ? 0.8 : 1,
-                    }}
-                    animate={{ y: 0, opacity: 1, scale: 1 }}
-                    exit={{ y: 20, opacity: 0, scale: 0.8 }}
-                    transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                    className="font-display text-2xl md:text-3xl text-gold font-semibold leading-none relative z-10"
-                  >
-                    {String(tile.value).padStart(2, "0")}
-                  </motion.span>
-                </AnimatePresence>
-              </div>
-              <span className="text-cream/60 font-sans text-[10px] md:text-xs tracking-widest uppercase mt-2">
-                {tile.label}
-              </span>
-            </motion.div>
-          ))}
-
-          {/* Separator dots */}
-          {[0, 1, 2].map((i) => (
-            <motion.span
-              key={`sep-${i}`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0.3, 1, 0.3] }}
-              transition={{
-                duration: 1,
-                repeat: Number.POSITIVE_INFINITY,
-                delay: i * 0.15,
-              }}
-              className="text-gold/60 font-display text-2xl md:text-3xl leading-none mb-6 hidden xs:block"
-              style={{ display: i < 3 ? undefined : "none" }}
-            />
-          ))}
-        </div>
-
-        {/* Subtext */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="text-cream/60 font-sans text-sm"
-        >
-          Service begins 15 March 2026 — Pre-book your session now!
-        </motion.p>
-      </div>
-    </div>
-  );
-}
-
 // ── Navbar ───────────────────────────────────────────────────────────────────
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -437,6 +184,7 @@ function Navbar() {
     { label: "Home", id: "hero" },
     { label: "About", id: "about" },
     { label: "Services", id: "services" },
+    { label: "Packages", id: "packages" },
     { label: "Gallery", id: "gallery" },
     { label: "Reviews", id: "reviews" },
     { label: "Contact", id: "contact" },
@@ -544,7 +292,6 @@ function Navbar() {
 
 // ── Hero Section ─────────────────────────────────────────────────────────────
 function HeroSection() {
-  const { isLaunched } = useCountdown();
   return (
     <section
       id="hero"
@@ -663,23 +410,6 @@ function HeroSection() {
           </div>
         </motion.div>
 
-        {/* Launch Date Pill (only shown before launch) */}
-        {!isLaunched && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 1.0 }}
-            className="flex justify-center mt-4"
-          >
-            <div className="inline-flex items-center gap-2 bg-charcoal/60 border border-gold/30 backdrop-blur-sm rounded-full px-4 py-2">
-              <Leaf className="w-3.5 h-3.5 text-gold shrink-0" />
-              <span className="text-gold/90 font-sans text-xs font-medium tracking-wide">
-                🌿 Launching 15 March 2026
-              </span>
-            </div>
-          </motion.div>
-        )}
-
         {/* Scroll indicator */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -760,7 +490,7 @@ function AboutSection() {
                   { value: "₹1,500", label: "Per Session" },
                 ].map((stat) => (
                   <div key={stat.label} className="text-center">
-                    <div className="font-display text-3xl text-gold mb-1">
+                    <div className="font-display text-3xl text-gold mb-5">
                       {stat.value}
                     </div>
                     <div className="text-xs text-muted-foreground font-sans tracking-wide uppercase">
@@ -936,6 +666,237 @@ function ServicesSection() {
             </FadeUp>
           ))}
         </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Packages Section ──────────────────────────────────────────────────────────
+function PackagesSection() {
+  const scrollToContact = () => {
+    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const packages = [
+    {
+      name: "Platinum",
+      price: 25000,
+      sittings: 30,
+      color: "from-amber-200/30 to-yellow-100/20",
+      badge: "Best Value",
+      borderClass: "border-gold",
+      textClass: "text-gold",
+      ocid: "packages.item.1",
+    },
+    {
+      name: "Emerald",
+      price: 20000,
+      sittings: 22,
+      color: "from-green-900/20 to-green-800/10",
+      badge: null,
+      borderClass: "border-forest/50",
+      textClass: "text-forest",
+      ocid: "packages.item.2",
+    },
+    {
+      name: "Diamond",
+      price: 15000,
+      sittings: 16,
+      color: "from-blue-900/20 to-slate-800/10",
+      badge: null,
+      borderClass: "border-gold-dim/40",
+      textClass: "text-gold-dim",
+      ocid: "packages.item.3",
+    },
+    {
+      name: "Gold",
+      price: 12000,
+      sittings: 10,
+      color: "from-amber-900/20 to-yellow-900/10",
+      badge: null,
+      borderClass: "border-amber/40",
+      textClass: "text-amber",
+      ocid: "packages.item.4",
+    },
+    {
+      name: "Silver",
+      price: 6000,
+      sittings: 5,
+      color: "from-stone-800/20 to-stone-700/10",
+      badge: null,
+      borderClass: "border-gold-dim/30",
+      textClass: "text-gold-dim",
+      ocid: "packages.item.5",
+    },
+  ];
+
+  return (
+    <section
+      id="packages"
+      className="py-24 md:py-32 bg-card relative overflow-hidden"
+      data-ocid="packages.section"
+    >
+      {/* Decorative */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
+      <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-gold/4 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full bg-amber/4 blur-3xl pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-6 relative">
+        <SectionHeading
+          label="Wellness Packages"
+          title="Invest in Your Health"
+          subtitle="Choose a package that suits your wellness journey. Multiple sittings, better value — authentic Ayurvedic healing at your doorstep."
+        />
+
+        {/* ── Special Combo Package (Featured) ── */}
+        <FadeUp delay={0.05}>
+          <div
+            className="relative mb-12 rounded-2xl overflow-hidden border-2 border-gold shadow-gold"
+            data-ocid="packages.card"
+          >
+            {/* Warm parchment gradient bg */}
+            <div className="absolute inset-0 bg-gradient-to-br from-amber/20 via-gold/10 to-cream/30 pointer-events-none" />
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gold-dim via-gold-bright to-gold-dim" />
+
+            <div className="relative z-10 p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8">
+              {/* Left: Info */}
+              <div className="flex-1 text-center md:text-left">
+                <div className="flex items-center gap-3 justify-center md:justify-start mb-3">
+                  <span className="inline-flex items-center gap-1.5 bg-gold text-charcoal font-sans font-bold text-xs px-3 py-1 rounded-full tracking-wide uppercase shadow-gold">
+                    <Sparkles className="w-3 h-3" />
+                    Special Package
+                  </span>
+                </div>
+                <h3 className="font-display text-3xl md:text-4xl text-foreground mb-2">
+                  Special Combo Package
+                </h3>
+                <p className="text-muted-foreground font-sans text-sm md:text-base leading-relaxed mb-4 max-w-lg">
+                  The ultimate Ayurvedic rejuvenation experience — combining
+                  three powerful therapies in one session for holistic healing
+                  and deep restoration.
+                </p>
+                <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                  {["Abhyanga", "Njavarakkizhi", "Steam Bath"].map(
+                    (therapy) => (
+                      <span
+                        key={therapy}
+                        className="inline-flex items-center gap-1 bg-gold/15 border border-gold/30 text-foreground font-sans text-xs px-3 py-1.5 rounded-full"
+                      >
+                        <Leaf className="w-3 h-3 text-gold" />
+                        {therapy}
+                      </span>
+                    ),
+                  )}
+                </div>
+              </div>
+
+              {/* Right: Price + CTA */}
+              <div className="text-center shrink-0">
+                <div className="mb-1 text-muted-foreground font-sans text-xs tracking-widest uppercase">
+                  Per Session
+                </div>
+                <div className="font-display text-5xl md:text-6xl text-gold leading-none mb-5">
+                  ₹3,500
+                </div>
+                <div className="text-muted-foreground font-sans text-xs mb-6">
+                  Inclusive of all therapies
+                </div>
+                <Button
+                  onClick={scrollToContact}
+                  className="bg-gold text-charcoal hover:bg-gold-bright font-sans font-semibold px-10 h-12 tracking-wide shadow-gold hover:shadow-gold-lg transition-all duration-300"
+                  data-ocid="packages.primary_button"
+                >
+                  Book This Package
+                </Button>
+              </div>
+            </div>
+          </div>
+        </FadeUp>
+
+        {/* ── Membership Packages Grid ── */}
+        <FadeUp delay={0.1}>
+          <h3 className="font-display text-2xl text-center text-foreground mb-2">
+            Membership Packages
+          </h3>
+          <p className="text-muted-foreground font-sans text-sm text-center mb-8">
+            Pre-purchase sittings and enjoy significant savings on every
+            session.
+          </p>
+        </FadeUp>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-5">
+          {packages.map((pkg, index) => {
+            return (
+              <FadeUp key={pkg.name} delay={0.1 + index * 0.08}>
+                <div
+                  data-ocid={pkg.ocid}
+                  className={`relative group flex flex-col rounded-xl border-2 ${pkg.borderClass} bg-card overflow-hidden transition-all duration-400 hover:shadow-gold hover:-translate-y-1`}
+                >
+                  {/* Gradient bg */}
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-br ${pkg.color} pointer-events-none`}
+                  />
+
+                  {/* Badge */}
+                  {pkg.badge && (
+                    <div className="absolute top-3 right-3 z-10">
+                      <span className="bg-gold text-charcoal font-sans font-bold text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wide shadow-gold">
+                        {pkg.badge}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="relative z-10 flex flex-col flex-1 p-5">
+                    {/* Name */}
+                    <h4
+                      className={`font-display text-2xl ${pkg.textClass} mb-1 group-hover:scale-105 transition-transform duration-300 origin-left`}
+                    >
+                      {pkg.name}
+                    </h4>
+
+                    {/* Price */}
+                    <div className="mb-3">
+                      <span className="font-display text-3xl text-foreground">
+                        ₹{pkg.price.toLocaleString("en-IN")}
+                      </span>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="h-px bg-border mb-3" />
+
+                    {/* Sittings */}
+                    <div className="flex items-center gap-1.5 mb-5">
+                      <CheckCircle2 className="w-4 h-4 text-gold shrink-0" />
+                      <span className="text-foreground font-sans text-sm font-semibold">
+                        {pkg.sittings} Sittings
+                      </span>
+                    </div>
+
+                    <div className="mt-auto">
+                      <Button
+                        onClick={scrollToContact}
+                        variant="outline"
+                        className={`w-full border ${pkg.borderClass} ${pkg.textClass} hover:bg-gold/10 font-sans font-semibold text-sm h-10 transition-all duration-200`}
+                        data-ocid="packages.secondary_button"
+                      >
+                        Book Now
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </FadeUp>
+            );
+          })}
+        </div>
+
+        {/* Bottom note */}
+        <FadeUp delay={0.4}>
+          <p className="text-center text-muted-foreground font-sans text-xs mt-10">
+            * All packages include home visit service within 15 km of
+            Chandapura, Bangalore. Travel charges apply beyond 15 km.
+          </p>
+        </FadeUp>
       </div>
     </section>
   );
@@ -1866,7 +1827,7 @@ function ReviewCard({ review, index }: { review: Review; index: number }) {
       </div>
       {review.adminReply && (
         <div className="mt-3 pt-3 border-t border-gold/10 bg-charcoal-mid/40 rounded-lg px-4 py-3">
-          <p className="text-gold/80 font-sans text-xs font-semibold uppercase tracking-wider mb-1">
+          <p className="text-gold/80 font-sans text-xs font-semibold uppercase tracking-wider mb-5">
             Response from Prana Ayurvedic
           </p>
           <p className="text-cream/75 font-sans text-sm leading-relaxed">
@@ -1916,7 +1877,7 @@ function ReviewsSection({
             <div className="flex justify-center mb-12">
               <div className="inline-flex items-center gap-4 bg-charcoal border border-gold/20 rounded-2xl px-7 py-4 shadow-gold">
                 <div className="text-center">
-                  <div className="font-display text-4xl text-gold leading-none mb-1">
+                  <div className="font-display text-4xl text-gold leading-none mb-5">
                     {avgRating.toFixed(1)}
                   </div>
                   <div className="text-muted-foreground font-sans text-xs tracking-wide">
@@ -2054,6 +2015,7 @@ function Footer() {
                 "hero",
                 "about",
                 "services",
+                "packages",
                 "gallery",
                 "reviews",
                 "contact",
@@ -2181,7 +2143,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-charcoal">
+    <div className="min-h-screen bg-background">
       <Toaster
         position="top-right"
         toastOptions={{
@@ -2194,10 +2156,10 @@ export default function App() {
       />
       <Navbar />
       <main>
-        <CountdownBanner />
         <HeroSection />
         <AboutSection />
         <ServicesSection />
+        <PackagesSection />
         <GallerySection />
         <ReviewsSection onOpenReviewModal={() => setReviewModalOpen(true)} />
         <ContactSection />
