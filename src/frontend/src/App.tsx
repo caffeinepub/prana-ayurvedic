@@ -1845,6 +1845,106 @@ function ReviewCard({ review, index }: { review: Review; index: number }) {
   );
 }
 
+// ── Seed Reviews (permanent old customer reviews) ────────────────────────────
+type SeedReview = {
+  id: string;
+  name: string;
+  rating: number;
+  comment: string;
+  date: string;
+  adminReply?: string;
+};
+
+const SEED_REVIEWS: SeedReview[] = [
+  {
+    id: "seed-1",
+    name: "Priya Sharma",
+    rating: 5,
+    comment:
+      "Absolutely wonderful experience! The Abhyanga massage was deeply relaxing and the therapist was very professional. I felt completely rejuvenated after the session. Will definitely book again!",
+    date: "March 2026",
+  },
+  {
+    id: "seed-2",
+    name: "Rekha Nair",
+    rating: 5,
+    comment:
+      "Njavarakkizhi treatment was amazing. My back pain reduced significantly after just two sessions. The therapist explained everything clearly and made me feel very comfortable. Highly recommend Prana Ayurvedic!",
+    date: "March 2026",
+  },
+  {
+    id: "seed-3",
+    name: "Sunita Rao",
+    rating: 5,
+    comment:
+      "I took the post delivery care package and it was life-changing. The therapist was gentle, caring, and very knowledgeable. My body recovered so much faster. Thank you Prana Ayurvedic!",
+    date: "February 2026",
+  },
+  {
+    id: "seed-4",
+    name: "Meena Krishnan",
+    rating: 4,
+    comment:
+      "Very good service. The Uzhichil massage was done with great expertise. The warm herbal oil treatment was very soothing. I appreciate the home service convenience. Looking forward to my next session.",
+    date: "February 2026",
+  },
+  {
+    id: "seed-5",
+    name: "Anitha Reddy",
+    rating: 5,
+    comment:
+      "Took the Soundarya Vardhini facial treatment and my skin is glowing! The products used are all natural and the technique is very calming. The home visit was punctual and professional. 5 stars!",
+    date: "January 2026",
+  },
+  {
+    id: "seed-6",
+    name: "Deepa Menon",
+    rating: 5,
+    comment:
+      "The Swedana steam treatment combined with Abhyanga was exactly what I needed. All my stress melted away. The therapist was skilled and the service was top class. Chandapura is lucky to have this service!",
+    date: "January 2026",
+  },
+];
+
+function SeedReviewCard({
+  review,
+  index,
+}: { review: SeedReview; index: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{
+        duration: 0.5,
+        delay: index * 0.08,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+      className="group bg-charcoal border border-gold/25 border-l-2 border-l-gold/60 rounded-xl p-6 hover:border-gold/50 hover:shadow-gold transition-all duration-300 flex flex-col gap-4"
+    >
+      <div className="flex items-start justify-between gap-2">
+        <StarDisplay rating={review.rating} />
+        <span className="text-muted-foreground/60 font-sans text-xs shrink-0">
+          {review.date}
+        </span>
+      </div>
+      <p className="text-cream/85 font-sans text-sm leading-relaxed flex-1 line-clamp-5">
+        "{review.comment}"
+      </p>
+      <div className="flex items-center gap-3 pt-2 border-t border-gold/8">
+        <div className="w-8 h-8 rounded-full bg-gold/15 border border-gold/20 flex items-center justify-center shrink-0">
+          <span className="text-gold font-display text-sm font-semibold uppercase">
+            {review.name.charAt(0)}
+          </span>
+        </div>
+        <span className="text-cream/90 font-sans text-sm font-medium">
+          {review.name}
+        </span>
+      </div>
+    </motion.div>
+  );
+}
+
 // ── Reviews Section ────────────────────────────────────────────────────────────
 function ReviewsSection({
   onOpenReviewModal,
@@ -1852,12 +1952,16 @@ function ReviewsSection({
   onOpenReviewModal: () => void;
 }) {
   const { data: reviews, isLoading } = useGetAllReviews();
-  const allReviews = reviews ?? [];
+  const liveReviews = reviews ?? [];
 
+  const allRatings = [
+    ...liveReviews.map((r) => Number(r.rating)),
+    ...SEED_REVIEWS.map((r) => r.rating),
+  ];
+  const totalCount = liveReviews.length + SEED_REVIEWS.length;
   const avgRating =
-    allReviews.length > 0
-      ? allReviews.reduce((sum, r) => sum + Number(r.rating), 0) /
-        allReviews.length
+    allRatings.length > 0
+      ? allRatings.reduce((sum, r) => sum + r, 0) / allRatings.length
       : 0;
 
   return (
@@ -1878,7 +1982,7 @@ function ReviewsSection({
         />
 
         {/* Average rating summary */}
-        {!isLoading && allReviews.length > 0 && (
+        {!isLoading && (
           <FadeUp delay={0.1}>
             <div className="flex justify-center mb-12">
               <div className="inline-flex items-center gap-4 bg-charcoal border border-gold/20 rounded-2xl px-7 py-4 shadow-gold">
@@ -1894,8 +1998,8 @@ function ReviewsSection({
                 <div>
                   <StarDisplay rating={Math.round(avgRating)} size="md" />
                   <div className="text-muted-foreground font-sans text-xs mt-1.5">
-                    Based on {allReviews.length}{" "}
-                    {allReviews.length === 1 ? "review" : "reviews"}
+                    Based on {totalCount}{" "}
+                    {totalCount === 1 ? "review" : "reviews"}
                   </div>
                 </div>
               </div>
@@ -1922,52 +2026,28 @@ function ReviewsSection({
           </div>
         )}
 
-        {/* Empty state */}
-        {!isLoading && allReviews.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex flex-col items-center justify-center py-20 gap-5 mb-12"
-            data-ocid="reviews.empty_state"
-          >
-            <div className="w-16 h-16 rounded-full bg-gold/8 border border-gold/15 flex items-center justify-center">
-              <Star className="w-7 h-7 text-gold/50" />
-            </div>
-            <div className="text-center">
-              <p className="font-display text-xl text-cream mb-2">
-                Be the first to share your experience
-              </p>
-              <p className="text-muted-foreground font-sans text-sm">
-                Your honest review helps others on their wellness journey.
-              </p>
-            </div>
-            <Button
-              onClick={onOpenReviewModal}
-              className="bg-gold text-charcoal hover:bg-gold-bright font-sans font-semibold gap-2 shadow-gold"
-              data-ocid="reviews.primary_button"
-            >
-              <Star className="w-4 h-4 fill-charcoal" />
-              Leave a Review
-            </Button>
-          </motion.div>
-        )}
-
         {/* Reviews grid */}
-        {!isLoading && allReviews.length > 0 && (
+        {!isLoading && (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {allReviews.map((review, index) => (
+            {liveReviews.map((review, index) => (
               <ReviewCard
                 key={Number(review.id)}
                 review={review}
                 index={index}
               />
             ))}
+            {SEED_REVIEWS.map((review, index) => (
+              <SeedReviewCard
+                key={review.id}
+                review={review}
+                index={liveReviews.length + index}
+              />
+            ))}
           </div>
         )}
 
         {/* CTA button */}
-        {!isLoading && allReviews.length > 0 && (
+        {!isLoading && (
           <FadeUp delay={0.2}>
             <div className="flex justify-center">
               <Button
