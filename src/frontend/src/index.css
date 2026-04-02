@@ -26,54 +26,54 @@
 
 :root {
   /* ── Shadcn semantic tokens (OKLCH) ── */
-  --background: 0.97 0.015 85;
-  --foreground: 0.22 0.04 55;
-  --card: 0.95 0.02 80;
-  --card-foreground: 0.22 0.04 55;
-  --popover: 0.95 0.02 80;
-  --popover-foreground: 0.22 0.04 55;
-  --primary: 0.32 0.09 145;
-  --primary-foreground: 0.97 0.01 85;
-  --secondary: 0.92 0.025 80;
-  --secondary-foreground: 0.22 0.04 55;
-  --muted: 0.92 0.025 80;
-  --muted-foreground: 0.52 0.05 60;
-  --accent: 0.55 0.15 45;
-  --accent-foreground: 0.97 0.01 85;
+  --background: 0.96 0.02 60;
+  --foreground: 0.2 0.05 45;
+  --card: 0.93 0.025 58;
+  --card-foreground: 0.2 0.05 45;
+  --popover: 0.93 0.025 58;
+  --popover-foreground: 0.2 0.05 45;
+  --primary: 0.38 0.09 45;
+  --primary-foreground: 0.96 0.02 60;
+  --secondary: 0.9 0.03 58;
+  --secondary-foreground: 0.2 0.05 45;
+  --muted: 0.9 0.03 58;
+  --muted-foreground: 0.5 0.05 50;
+  --accent: 0.62 0.2 50;
+  --accent-foreground: 0.97 0.01 60;
   --destructive: 0.55 0.18 25;
-  --destructive-foreground: 0.97 0.01 85;
-  --border: 0.85 0.03 75;
-  --input: 0.85 0.03 75;
-  --ring: 0.32 0.09 145;
+  --destructive-foreground: 0.97 0.01 60;
+  --border: 0.82 0.04 55;
+  --input: 0.82 0.04 55;
+  --ring: 0.62 0.2 50;
   --radius: 0.5rem;
 
   /* ── Chart colors ── */
-  --chart-1: 0.65 0.15 45;
-  --chart-2: 0.55 0.12 145;
-  --chart-3: 0.7 0.14 65;
-  --chart-4: 0.75 0.12 82;
-  --chart-5: 0.45 0.1 300;
+  --chart-1: 0.62 0.2 50;
+  --chart-2: 0.38 0.09 45;
+  --chart-3: 0.7 0.16 52;
+  --chart-4: 0.55 0.12 48;
+  --chart-5: 0.45 0.1 40;
 
   /* ── Sidebar ── */
-  --sidebar: 0.95 0.02 80;
-  --sidebar-foreground: 0.22 0.04 55;
-  --sidebar-primary: 0.32 0.09 145;
-  --sidebar-primary-foreground: 0.97 0.01 85;
-  --sidebar-accent: 0.92 0.025 80;
-  --sidebar-accent-foreground: 0.22 0.04 55;
-  --sidebar-border: 0.85 0.03 75;
-  --sidebar-ring: 0.32 0.09 145;
+  --sidebar: 0.9 0.03 58;
+  --sidebar-foreground: 0.2 0.05 45;
+  --sidebar-primary: 0.38 0.09 45;
+  --sidebar-primary-foreground: 0.96 0.02 60;
+  --sidebar-accent: 0.9 0.03 58;
+  --sidebar-accent-foreground: 0.2 0.05 45;
+  --sidebar-border: 0.82 0.04 55;
+  --sidebar-ring: 0.62 0.2 50;
 
   /* ── Custom palette tokens ── */
-  --gold: 0.75 0.12 82;
-  --gold-bright: 0.82 0.14 85;
-  --gold-dim: 0.68 0.09 80;
-  --amber: 0.7 0.14 65;
-  --cream: 0.96 0.02 85;
-  --charcoal: 0.2 0.04 55;
-  --charcoal-mid: 0.25 0.045 58;
-  --charcoal-light: 0.32 0.05 60;
-  --forest: 0.32 0.09 145;
+  --gold: 0.68 0.18 50;
+  --gold-bright: 0.75 0.21 52;
+  --gold-dim: 0.6 0.14 48;
+  --amber: 0.65 0.16 48;
+  --cream: 0.95 0.025 62;
+  --charcoal: 0.2 0.06 43;
+  --charcoal-mid: 0.27 0.07 45;
+  --charcoal-light: 0.35 0.08 47;
+  --forest: 0.3 0.07 43;
 }
 
 * {
