@@ -12,7 +12,7 @@ export interface Review {
     rating: bigint;
     comment: string;
     timestamp: bigint;
-    adminReply?: string;
+    adminReply: [] | [string];
 }
 
 export interface BackendActor {

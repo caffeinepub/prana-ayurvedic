@@ -12,6 +12,8 @@ export const Inquiry = IDL.Record({
   'service' : IDL.Text,
   'name' : IDL.Text,
   'phone' : IDL.Text,
+  'preferredDate' : IDL.Text,
+  'preferredTime' : IDL.Text,
 });
 export const Review = IDL.Record({
   'id' : IDL.Nat,
@@ -19,13 +21,15 @@ export const Review = IDL.Record({
   'comment' : IDL.Text,
   'timestamp' : IDL.Int,
   'rating' : IDL.Nat,
+  'adminReply' : IDL.Opt(IDL.Text),
 });
 
 export const idlService = IDL.Service({
   'deleteReview' : IDL.Func([IDL.Nat], [], []),
-  'getAllInquiries' : IDL.Func([], [IDL.Vec(Inquiry)], []),
-  'getAllReviews' : IDL.Func([], [IDL.Vec(Review)], []),
-  'submitInquiry' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
+  'getAllInquiries' : IDL.Func([], [IDL.Vec(Inquiry)], ['query']),
+  'getAllReviews' : IDL.Func([], [IDL.Vec(Review)], ['query']),
+  'replyToReview' : IDL.Func([IDL.Nat, IDL.Text], [], []),
+  'submitInquiry' : IDL.Func([IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text], [], []),
   'submitReview' : IDL.Func([IDL.Text, IDL.Nat, IDL.Text], [IDL.Nat], []),
 });
 
@@ -36,6 +40,8 @@ export const idlFactory = ({ IDL }) => {
     'service' : IDL.Text,
     'name' : IDL.Text,
     'phone' : IDL.Text,
+    'preferredDate' : IDL.Text,
+    'preferredTime' : IDL.Text,
   });
   const Review = IDL.Record({
     'id' : IDL.Nat,
@@ -43,13 +49,15 @@ export const idlFactory = ({ IDL }) => {
     'comment' : IDL.Text,
     'timestamp' : IDL.Int,
     'rating' : IDL.Nat,
+    'adminReply' : IDL.Opt(IDL.Text),
   });
   
   return IDL.Service({
     'deleteReview' : IDL.Func([IDL.Nat], [], []),
-    'getAllInquiries' : IDL.Func([], [IDL.Vec(Inquiry)], []),
-    'getAllReviews' : IDL.Func([], [IDL.Vec(Review)], []),
-    'submitInquiry' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
+    'getAllInquiries' : IDL.Func([], [IDL.Vec(Inquiry)], ['query']),
+    'getAllReviews' : IDL.Func([], [IDL.Vec(Review)], ['query']),
+    'replyToReview' : IDL.Func([IDL.Nat, IDL.Text], [], []),
+    'submitInquiry' : IDL.Func([IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text], [], []),
     'submitReview' : IDL.Func([IDL.Text, IDL.Nat, IDL.Text], [IDL.Nat], []),
   });
 };

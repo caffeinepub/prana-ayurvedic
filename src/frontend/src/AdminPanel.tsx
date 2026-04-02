@@ -423,8 +423,9 @@ function ReviewsTab() {
         const next = { ...prev };
         for (const r of reviews) {
           const key = String(r.id);
-          if (!(key in next) && r.adminReply) {
-            next[key] = r.adminReply;
+          if (!(key in next) && r.adminReply?.[0]) {
+            const replyVal = r.adminReply?.[0];
+            if (replyVal) next[key] = replyVal;
           }
         }
         return next;
@@ -579,13 +580,13 @@ function ReviewsTab() {
               </p>
 
               {/* Existing reply display */}
-              {review.adminReply && (
+              {review.adminReply?.[0] && (
                 <div className="bg-gold/5 border border-gold/20 rounded-lg px-4 py-3">
                   <p className="text-gold/80 font-sans text-xs font-semibold uppercase tracking-wider mb-1">
                     Your Response
                   </p>
                   <p className="text-cream/75 font-sans text-sm leading-relaxed">
-                    {review.adminReply}
+                    {review.adminReply?.[0]}
                   </p>
                 </div>
               )}
@@ -594,7 +595,7 @@ function ReviewsTab() {
               <div className="flex flex-col gap-2 pt-2 border-t border-gold/8">
                 <span className="text-gold/70 font-sans text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
                   <MessageSquareReply className="w-3.5 h-3.5" />
-                  {review.adminReply ? "Edit Your Reply" : "Add a Reply"}
+                  {review.adminReply?.[0] ? "Edit Your Reply" : "Add a Reply"}
                 </span>
                 <Textarea
                   value={replyInputs[String(review.id)] ?? ""}

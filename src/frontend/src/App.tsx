@@ -1831,13 +1831,13 @@ function ReviewCard({ review, index }: { review: Review; index: number }) {
           {review.name}
         </span>
       </div>
-      {review.adminReply && (
+      {review.adminReply?.[0] && (
         <div className="mt-3 pt-3 border-t border-gold/10 bg-charcoal-mid/40 rounded-lg px-4 py-3">
           <p className="text-gold/80 font-sans text-xs font-semibold uppercase tracking-wider mb-5">
             Response from Prana Ayurvedic
           </p>
           <p className="text-cream/75 font-sans text-sm leading-relaxed">
-            {review.adminReply}
+            {review.adminReply?.[0]}
           </p>
         </div>
       )}
