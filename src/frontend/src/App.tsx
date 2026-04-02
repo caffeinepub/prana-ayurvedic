@@ -1845,106 +1845,6 @@ function ReviewCard({ review, index }: { review: Review; index: number }) {
   );
 }
 
-// ── Seed Reviews (permanent old customer reviews) ────────────────────────────
-type SeedReview = {
-  id: string;
-  name: string;
-  rating: number;
-  comment: string;
-  date: string;
-  adminReply?: string;
-};
-
-const SEED_REVIEWS: SeedReview[] = [
-  {
-    id: "seed-1",
-    name: "Priya Sharma",
-    rating: 5,
-    comment:
-      "Absolutely wonderful experience! The Abhyanga massage was deeply relaxing and the therapist was very professional. I felt completely rejuvenated after the session. Will definitely book again!",
-    date: "March 2026",
-  },
-  {
-    id: "seed-2",
-    name: "Rekha Nair",
-    rating: 5,
-    comment:
-      "Njavarakkizhi treatment was amazing. My back pain reduced significantly after just two sessions. The therapist explained everything clearly and made me feel very comfortable. Highly recommend Prana Ayurvedic!",
-    date: "March 2026",
-  },
-  {
-    id: "seed-3",
-    name: "Sunita Rao",
-    rating: 5,
-    comment:
-      "I took the post delivery care package and it was life-changing. The therapist was gentle, caring, and very knowledgeable. My body recovered so much faster. Thank you Prana Ayurvedic!",
-    date: "February 2026",
-  },
-  {
-    id: "seed-4",
-    name: "Meena Krishnan",
-    rating: 4,
-    comment:
-      "Very good service. The Uzhichil massage was done with great expertise. The warm herbal oil treatment was very soothing. I appreciate the home service convenience. Looking forward to my next session.",
-    date: "February 2026",
-  },
-  {
-    id: "seed-5",
-    name: "Anitha Reddy",
-    rating: 5,
-    comment:
-      "Took the Soundarya Vardhini facial treatment and my skin is glowing! The products used are all natural and the technique is very calming. The home visit was punctual and professional. 5 stars!",
-    date: "January 2026",
-  },
-  {
-    id: "seed-6",
-    name: "Deepa Menon",
-    rating: 5,
-    comment:
-      "The Swedana steam treatment combined with Abhyanga was exactly what I needed. All my stress melted away. The therapist was skilled and the service was top class. Chandapura is lucky to have this service!",
-    date: "January 2026",
-  },
-];
-
-function SeedReviewCard({
-  review,
-  index,
-}: { review: SeedReview; index: number }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{
-        duration: 0.5,
-        delay: index * 0.08,
-        ease: [0.22, 1, 0.36, 1],
-      }}
-      className="group bg-charcoal border border-gold/25 border-l-2 border-l-gold/60 rounded-xl p-6 hover:border-gold/50 hover:shadow-gold transition-all duration-300 flex flex-col gap-4"
-    >
-      <div className="flex items-start justify-between gap-2">
-        <StarDisplay rating={review.rating} />
-        <span className="text-muted-foreground/60 font-sans text-xs shrink-0">
-          {review.date}
-        </span>
-      </div>
-      <p className="text-cream/85 font-sans text-sm leading-relaxed flex-1 line-clamp-5">
-        "{review.comment}"
-      </p>
-      <div className="flex items-center gap-3 pt-2 border-t border-gold/8">
-        <div className="w-8 h-8 rounded-full bg-gold/15 border border-gold/20 flex items-center justify-center shrink-0">
-          <span className="text-gold font-display text-sm font-semibold uppercase">
-            {review.name.charAt(0)}
-          </span>
-        </div>
-        <span className="text-cream/90 font-sans text-sm font-medium">
-          {review.name}
-        </span>
-      </div>
-    </motion.div>
-  );
-}
-
 // ── Reviews Section ────────────────────────────────────────────────────────────
 function ReviewsSection({
   onOpenReviewModal,
@@ -1954,11 +1854,8 @@ function ReviewsSection({
   const { data: reviews, isLoading } = useGetAllReviews();
   const liveReviews = reviews ?? [];
 
-  const allRatings = [
-    ...liveReviews.map((r) => Number(r.rating)),
-    ...SEED_REVIEWS.map((r) => r.rating),
-  ];
-  const totalCount = liveReviews.length + SEED_REVIEWS.length;
+  const allRatings = liveReviews.map((r) => Number(r.rating));
+  const totalCount = liveReviews.length;
   const avgRating =
     allRatings.length > 0
       ? allRatings.reduce((sum, r) => sum + r, 0) / allRatings.length
@@ -2027,20 +1924,20 @@ function ReviewsSection({
         )}
 
         {/* Reviews grid */}
-        {!isLoading && (
+        {!isLoading && liveReviews.length === 0 && (
+          <div className="text-center py-16 mb-12">
+            <p className="text-muted-foreground font-sans text-base">
+              Be the first to share your experience!
+            </p>
+          </div>
+        )}
+        {!isLoading && liveReviews.length > 0 && (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             {liveReviews.map((review, index) => (
               <ReviewCard
                 key={Number(review.id)}
                 review={review}
                 index={index}
-              />
-            ))}
-            {SEED_REVIEWS.map((review, index) => (
-              <SeedReviewCard
-                key={review.id}
-                review={review}
-                index={liveReviews.length + index}
               />
             ))}
           </div>
